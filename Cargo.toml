@@ -1,0 +1,34 @@
+[package]
+name = "blaircompress"
+version = "0.1.0"
+edition = "2021"
+authors = ["sethispr"]
+readme = "README.md"
+repository = "https://github.com/sethispr/blair-utils"
+description = "CLI utility tools for blair"
+keywords = ["terminal", "utility", "png", "optimization"]
+categories = ["command-line-interface"]
+license = "MIT"
+
+[profile.dev]
+opt-level = 1
+codegen-units = 16
+incremental = true
+
+[profile.release]
+opt-level = 3
+lto = true
+
+[dependencies]
+image = "0.24.7"
+oxipng = "9.1.5"
+rayon = "1.7.0"
+config = "0.13.0"
+serde = { version = "1.0", features = ["derive"] }
+indicatif = "0.17.0"
+anyhow = "1.0.0"
+indexmap = "2.0"
+
+[[bin]]
+name = "blaircompress"
+path = "src/main.rs"
