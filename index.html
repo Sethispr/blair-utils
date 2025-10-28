@@ -1,1 +1,151 @@
-<!doctypehtml><html lang=en><meta charset=utf-8><meta content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no"name=viewport><title>Minimalist Card Frame (290×416 PNG, transparent)</title><link href=https://fonts.gstatic.com rel=preconnect crossorigin><link href=https://cdnjs.cloudflare.com rel=preconnect crossorigin><link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700&family=Lexend+Deca:wght@300;400;600;700&family=Sora:wght@400;600;700&display=swap"rel=stylesheet media=print onload='this.media="all"'><link href=./styles.css rel=stylesheet><link href=https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css rel=stylesheet crossorigin=anonymous integrity=sha512-... media=print onload='this.media="all"'referrerpolicy=no-referrer><main class=wrap><header class=topbar><h1 class=title>Card Frame</h1><div class=top-actions><button class="btn btn-ghost"title="Clear all inputs"id=clearAllBtn><i class="fa-solid fa-broom"></i></button> <button class=btn title="Download PNG"id=downloadBtn><i class="fa-solid fa-download"style=margin-right:8px></i>Download PNG</button></div></header><section class="collapsed help-panel"id=helpPanel aria-live=polite><div class=help-header><strong>Welcome Tutorial</strong> <button class="btn btn-ghost small"title="Show / hide instructions"id=toggleHelpBtn aria-expanded=false><i class="fa-solid fa-chevron-down"></i></button></div><div class=collapsible-content><div class=help-steps-content><p>Begin by uploading your artwork (required, JPG/PNG supported).<p>Input the Character Name and their Series Title. You do not need to add a print number if you are submitting a card.<p>The card frame color is automatically detected from your image. You can customize this by selecting a different color from the color palette or choosing a Custom Color.<p>Once your done, click the "Download PNG" button (top right of the website) to save your finished card image.</div><p class=help-tip>Tip: If the automatic color choice looks off, pick a different color palette and switch back to the first color palette (it'll change the color to sth else). If the previous color was better, reupload to restore a previous dominant color.</div></section><section class=preview id=previewWrap><div class=checker></div><div class=gloss aria-hidden=true></div><div class=etch aria-hidden=true></div><div class=vignette aria-hidden=true></div><div class=rim-highlight aria-hidden=true></div><canvas aria-label="Card frame preview"height=416 id=frameCanvas width=930></canvas></section><section class=controls><div class=card-inputs-container><div class=card-input-set id=card1Controls data-step=1><h3><span class=step-badge>Step 1</span> Upload Image</h3><div class=input-group><label for=imageUpload1>Upload Image</label><div class=file-row><div class=dropzone-wrapper><div class=dropzone id=dropzone1 aria-label="Upload image or drop here"data-target-input=imageUpload1 role=button tabindex=0><div class=dz-left><div class=dz-icon aria-hidden=true><i class="fa-solid fa-cloud-arrow-up"></i></div><div class=dz-text><button class="btn small"id=dropChooseBtn type=button>Choose file</button><div class=desc>Drag & drop or <span class=dz-click>click to upload</span></div></div></div><button class="btn btn-ghost clear-btn"title="Clear card 1"data-clear-card=1><i class="fa-solid fa-trash"></i></button></div><span class=filename aria-live=polite id=filename1></span></div><input id=imageUpload1 type=file aria-describedby=colorStatus1 accept=image/* style=display:none></div><div class=card-controls-row><p class="small-info muted"id=colorStatus1 aria-live=polite></div></div><h4><span class=step-badge>Step 2</span> Select Color</h4><div class="hidden palette"id=palette1 aria-label="Color choices"></div><p class="small-info muted"id=paletteHint1>No image uploaded. Default color will be used.<div class="input-group top-pad"><div class=color-input-wrapper><input id=customColor1 type=color aria-describedby=colorStatus1 value=#969696> <small class=small-info>Pick your own frame color</small></div></div><div class=input-group><input id=showImage1 type=checkbox checked> <label for=showImage1>Show Uploaded Image</label> <small class=small-info>Uncheck to show frame only</small></div><h4><span class=step-badge>Step 3</span> Card Text</h4><div class=input-group><label for=charName1>Character Name</label><div class=input-with-clear><input id=charName1 maxlength=20 placeholder="e.g. Hu Tao"> <button class=clear-input-btn title="Clear Character Name"data-target=charName1><i class="fa-solid fa-xmark"></i></button></div><div class="small-info muted length-warning"id=charWarn1 aria-live=polite></div></div><div class=input-group><label for=seriesTitle1>Series Title</label><div class=input-with-clear><input id=seriesTitle1 maxlength=20 placeholder="e.g. Genshin Impact"> <button class=clear-input-btn title="Clear Series Title"data-target=seriesTitle1><i class="fa-solid fa-xmark"></i></button></div><div class="small-info muted length-warning"id=seriesWarn1 aria-live=polite></div></div><div class=input-group><label for=printNumber1>Print Number (optional)</label><div class=input-with-clear><input id=printNumber1 maxlength=10 placeholder="e.g. #1"> <button class=clear-input-btn title="Clear Print Number"data-target=printNumber1><i class="fa-solid fa-xmark"></i></button></div><small class=small-info>Print number is <strong>not needed</strong> if you are submitting a card</small></div></div></div></section><section class="collapsed help-panel"id=resourcesPanel aria-live=polite><div class=help-header><strong>Cardmaker Resources</strong> <button class="btn btn-ghost small"title="Show / hide resources"id=toggleResourcesBtn aria-expanded=false><i class="fa-solid fa-chevron-down"></i></button></div><div class=collapsible-content><div class=resource-categories><div class=resource-group><h5>Image Upscaling</h5><ul><li><a href=https://www.waifu2x.net/ target=_blank>waifu2x</a><li><a href=https://unlimited.waifu2x.net/ target=_blank>unlimited:waifu2x (Slow, Supports 4x)</a><li><a href=https://upscayl.org/ target=_blank>Upscayl (Desktop App)</a></ul></div><div class=resource-group><h5>Image Sources</h5><ul><li>You can also try cross-checking other Discord card bot images and use a reverse image search to get the original official source for better quality and customize it. (rotating, cropping, etc)<li><a href=https://danbooru.donmai.us/ target=_blank>Danbooru</a><li><a href=https://safebooru.org/ target=_blank>Safebooru</a><li><a href=https://gelbooru.com/ target=_blank>Gelbooru</a><li><a href=https://x.com/ target=_blank>X</a><li><a href=https://www.zerochan.net/Official+Art target=_blank>Zerochan Official Art Tags (Search within Official Art)</a><li><a href=https://mudae.net/ target=_blank>Mudae.net</a><li><a href="https://everythingmoe.com/?section=artboard"target=_blank>Everythingmoe</a></ul></div><div class=resource-group><h5>Reverse Image Search</h5><ul><li>If you've found a good art you want to use but want to download it from the official source (or confirm its an official art), use a reverse image searcher and it may find it.<li><a href=https://images.google.com/ target=_blank>Google Image</a><li><a href=https://saucenao.com/ target=_blank>SauceNao</a><li><a href=https://copyseeker.net/ target=_blank>Copyseeker</a><li><a href=https://image.baidu.com/ target=_blank>Baidu</a><li><a href=https://yandex.com/images/ target=_blank>Yandex</a></ul></div><div class=resource-group><h5>Series Checker</h5><ul><li>We will use the English name of the series. You can check with other bots and lookup what the series was for your specific character.<li><a href=https://myanimelist.net/ target=_blank>MyAnimeList</a><li><a href=https://anilist.co/ target=_blank>Anilist</a><li><a href=https://kitsu.io/ target=_blank>Kitsu</a><li><a href=https://mudae.net/ target=_blank>Mudae</a><li><a href="https://everythingmoe.com/?section=database"target=_blank>Everythingmoe</a></ul></div><div class=resource-group><h5>Lossless Compression</h5><ul><li>Note: You do not need to compress an image for us, we will do it for you! This is completely optional.<li><a href=https://github.com/Sethispr/blair-utils target=_blank>Blair Utils (needs Rust/Python, uses Oxipng, has batch support)</a><li><a href=https://free.tinypng.site/ target=_blank>TinyPNG (Upload final card image, press blue "Edit" button, select Oxipng, set compression level 3, interlace off, has no batch support)</a><li><s>Squoosh (select Oxipng, BUGGED)</s></ul></div></div></div></section><footer class=meta></footer></main><div id=toast-container></div><script src=./main.js type=module></script>
+<!doctypehtml>
+<html lang=en>
+   <meta charset=utf-8>
+   <meta content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no"name=viewport>
+   <title>Minimalist Card Frame (290×416 PNG, transparent)</title>
+   <link href=https://fonts.gstatic.com rel=preconnect crossorigin>
+   <link href=https://cdnjs.cloudflare.com rel=preconnect crossorigin>
+   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700&family=Lexend+Deca:wght@300;400;600;700&family=Sora:wght@400;600;700&display=swap"rel=stylesheet media=print onload='this.media="all"'>
+   <link href=./styles.css rel=stylesheet>
+   <link href=https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css rel=stylesheet crossorigin=anonymous integrity=sha512-... media=print onload='this.media="all"'referrerpolicy=no-referrer>
+   <main class=wrap>
+      <header class=topbar>
+         <h1 class=title>Card Frame</h1>
+         <div class=top-actions><button class="btn btn-ghost"title="Clear all inputs"id=clearAllBtn><i class="fa-solid fa-broom"></i></button> <button class=btn title="Download PNG"id=downloadBtn><i class="fa-solid fa-download"style=margin-right:8px></i>Download PNG</button></div>
+      </header>
+      <section class="collapsed help-panel"id=helpPanel aria-live=polite>
+         <div class=help-header><strong>Welcome Tutorial</strong> <button class="btn btn-ghost small"title="Show / hide instructions"id=toggleHelpBtn aria-expanded=false><i class="fa-solid fa-chevron-down"></i></button></div>
+         <div class=collapsible-content>
+            <div class=help-steps-content>
+               <p>Begin by uploading your artwork (required, JPG/PNG supported).
+               <p>Input the Character Name and their Series Title. You do not need to add a print number if you are submitting a card.
+               <p>The card frame color is automatically detected from your image. You can customize this by selecting a different color from the color palette or choosing a Custom Color.
+               <p>Once your done, click the "Download PNG" button (top right of the website) to save your finished card image.
+            </div>
+            <p class=help-tip>Tip: If the automatic color choice looks off, pick a different color palette and switch back to the first color palette (it'll change the color to sth else). If the previous color was better, reupload to restore a previous dominant color.
+         </div>
+      </section>
+      <section class=preview id=previewWrap>
+         <div class=checker></div>
+         <div class=gloss aria-hidden=true></div>
+         <div class=etch aria-hidden=true></div>
+         <div class=vignette aria-hidden=true></div>
+         <div class=rim-highlight aria-hidden=true></div>
+         <canvas aria-label="Card frame preview"height=416 id=frameCanvas width=930></canvas>
+      </section>
+      <section class=controls>
+         <div class=card-inputs-container>
+            <div class=card-input-set id=card1Controls data-step=1>
+               <h3><span class=step-badge>Step 1</span> Upload Image</h3>
+               <div class=input-group>
+                  <label for=imageUpload1>Upload Image</label>
+                  <div class=file-row>
+                     <div class=dropzone-wrapper>
+                        <div class=dropzone id=dropzone1 aria-label="Upload image or drop here"data-target-input=imageUpload1 role=button tabindex=0>
+                           <div class=dz-left>
+                              <div class=dz-icon aria-hidden=true><i class="fa-solid fa-cloud-arrow-up"></i></div>
+                              <div class=dz-text>
+                                 <button class="btn small"id=dropChooseBtn type=button>Choose file</button>
+                                 <div class=desc>Drag & drop or <span class=dz-click>click to upload</span></div>
+                              </div>
+                           </div>
+                           <button class="btn btn-ghost clear-btn"title="Clear card 1"data-clear-card=1><i class="fa-solid fa-trash"></i></button>
+                        </div>
+                        <span class=filename aria-live=polite id=filename1></span>
+                     </div>
+                     <input id=imageUpload1 type=file aria-describedby=colorStatus1 accept=image/* style=display:none>
+                  </div>
+                  <div class=card-controls-row>
+                     <p class="small-info muted"id=colorStatus1 aria-live=polite>
+                  </div>
+               </div>
+               <h4><span class=step-badge>Step 2</span> Select Color</h4>
+               <div class="hidden palette"id=palette1 aria-label="Color choices"></div>
+               <p class="small-info muted"id=paletteHint1>No image uploaded. Default color will be used.
+               <div class="input-group top-pad">
+                  <div class=color-input-wrapper><input id=customColor1 type=color aria-describedby=colorStatus1 value=#969696> <small class=small-info>Pick your own frame color</small></div>
+               </div>
+               <div class=input-group><input id=showImage1 type=checkbox checked> <label for=showImage1>Show Uploaded Image</label> <small class=small-info>Uncheck to show frame only</small></div>
+               <h4><span class=step-badge>Step 3</span> Card Text</h4>
+               <div class=input-group>
+                  <label for=charName1>Character Name</label>
+                  <div class=input-with-clear><input id=charName1 maxlength=20 placeholder="e.g. Hu Tao"> <button class=clear-input-btn title="Clear Character Name"data-target=charName1><i class="fa-solid fa-xmark"></i></button></div>
+                  <div class="small-info muted length-warning"id=charWarn1 aria-live=polite></div>
+               </div>
+               <div class=input-group>
+                  <label for=seriesTitle1>Series Title</label>
+                  <div class=input-with-clear><input id=seriesTitle1 maxlength=20 placeholder="e.g. Genshin Impact"> <button class=clear-input-btn title="Clear Series Title"data-target=seriesTitle1><i class="fa-solid fa-xmark"></i></button></div>
+                  <div class="small-info muted length-warning"id=seriesWarn1 aria-live=polite></div>
+               </div>
+               <div class=input-group>
+                  <label for=printNumber1>Print Number (optional)</label>
+                  <div class=input-with-clear><input id=printNumber1 maxlength=10 placeholder="e.g. #1"> <button class=clear-input-btn title="Clear Print Number"data-target=printNumber1><i class="fa-solid fa-xmark"></i></button></div>
+                  <small class=small-info>Print number is <strong>not needed</strong> if you are submitting a card</small>
+               </div>
+            </div>
+         </div>
+      </section>
+      <section class="collapsed help-panel"id=resourcesPanel aria-live=polite>
+         <div class=help-header><strong>Cardmaker Resources</strong> <button class="btn btn-ghost small"title="Show / hide resources"id=toggleResourcesBtn aria-expanded=false><i class="fa-solid fa-chevron-down"></i></button></div>
+         <div class=collapsible-content>
+            <div class=resource-categories>
+               <div class=resource-group>
+                  <h5>Image Upscaling</h5>
+                  <ul>
+                     <li><a href=https://www.waifu2x.net/ target=_blank>waifu2x</a>
+                     <li><a href=https://unlimited.waifu2x.net/ target=_blank>unlimited:waifu2x (Slow, Supports 4x)</a>
+                     <li><a href=https://upscayl.org/ target=_blank>Upscayl (Desktop App)</a>
+                  </ul>
+               </div>
+               <div class=resource-group>
+                  <h5>Image Sources</h5>
+                  <ul>
+                     <li>You can also try cross-checking other Discord card bot images and use a reverse image search to get the original official source for better quality and customize it. (rotating, cropping, etc)
+                     <li><a href=https://danbooru.donmai.us/ target=_blank>Danbooru</a>
+                     <li><a href=https://safebooru.org/ target=_blank>Safebooru</a>
+                     <li><a href=https://gelbooru.com/ target=_blank>Gelbooru</a>
+                     <li><a href=https://x.com/ target=_blank>X</a>
+                     <li><a href=https://www.zerochan.net/Official+Art target=_blank>Zerochan Official Art Tags (Search within Official Art)</a>
+                     <li><a href=https://mudae.net/ target=_blank>Mudae.net</a>
+                     <li><a href="https://everythingmoe.com/?section=artboard"target=_blank>Everythingmoe</a>
+                  </ul>
+               </div>
+               <div class=resource-group>
+                  <h5>Reverse Image Search</h5>
+                  <ul>
+                     <li>If you've found a good art you want to use but want to download it from the official source (or confirm its an official art), use a reverse image searcher and it may find it.
+                     <li><a href=https://images.google.com/ target=_blank>Google Image</a>
+                     <li><a href=https://saucenao.com/ target=_blank>SauceNao</a>
+                     <li><a href=https://copyseeker.net/ target=_blank>Copyseeker</a>
+                     <li><a href=https://image.baidu.com/ target=_blank>Baidu</a>
+                     <li><a href=https://yandex.com/images/ target=_blank>Yandex</a>
+                  </ul>
+               </div>
+               <div class=resource-group>
+                  <h5>Series Checker</h5>
+                  <ul>
+                     <li>We will use the English name of the series. You can check with other bots and lookup what the series was for your specific character.
+                     <li><a href=https://myanimelist.net/ target=_blank>MyAnimeList</a>
+                     <li><a href=https://anilist.co/ target=_blank>Anilist</a>
+                     <li><a href=https://kitsu.io/ target=_blank>Kitsu</a>
+                     <li><a href=https://mudae.net/ target=_blank>Mudae</a>
+                     <li><a href="https://everythingmoe.com/?section=database"target=_blank>Everythingmoe</a>
+                  </ul>
+               </div>
+               <div class=resource-group>
+                  <h5>Lossless Compression</h5>
+                  <ul>
+                     <li>Note: You do not need to compress an image for us, we will do it for you! This is completely optional.
+                     <li><a href=https://github.com/Sethispr/blair-utils target=_blank>Blair Utils (needs Rust/Python, uses Oxipng, has batch support)</a>
+                     <li><a href=https://free.tinypng.site/ target=_blank>TinyPNG (Upload final card image, press blue "Edit" button, select Oxipng, set compression level 3, interlace off, has no batch support)</a>
+                     <li><s>Squoosh (select Oxipng, BUGGED)</s>
+                  </ul>
+               </div>
+            </div>
+         </div>
+      </section>
+      <footer class=meta></footer>
+   </main>
+   <div id=toast-container></div>
+   <script src=./main.js type=module></script>
+   
