@@ -3,15 +3,12 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no" />
-  <title>Minimalist Card Frame (290×416 PNG, transparent)</title>
+  <title>Blair's card/frame generator! (725x1040, PNG)</title>
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link rel="preconnect" href="https://cdnjs.cloudflare.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700&family=Lexend+Deca:wght@300;400;600;700&family=Sora:wght@400;600;700&display=swap" rel="stylesheet" media="print" onload="this.media='all'">
   <link rel="stylesheet" href="./styles.css">
-  <!-- Removed blocking script, ColorThief is now loaded dynamically only when an image is uploaded -->
-  <!-- <script defer src="https://unpkg.com/colorthief/dist/color-thief.umd.js"></script> -->
-
-  <!-- add font awesome for icons -->
+  <script defer src="https://unpkg.com/colorthief/dist/color-thief.umd.js"></script>
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" integrity="sha512-..." crossorigin="anonymous" referrerpolicy="no-referrer" media="print" onload="this.media='all'">
 
 </head>
@@ -121,6 +118,13 @@
               <button class="clear-input-btn" data-target="printNumber1" title="Clear Print Number"><i class="fa-solid fa-xmark"></i></button>
             </div>
             <small class="small-info">Print number is <strong>not needed</strong> if you are submitting a card</small>
+          </div>
+
+          <!-- Send to Discord button -->
+          <div class="form-actions">
+            <button id="sendDiscordBtn" class="btn btn-discord" type="button" title="Send card details to Discord">
+              <i class="fa-brands fa-discord" style="margin-right:8px;"></i>Send to Discord
+            </button>
           </div>
         </div>
 
