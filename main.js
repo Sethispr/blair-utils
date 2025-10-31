@@ -11,7 +11,6 @@ const ctx = canvas.getContext('2d');
 let animPhase = 0;
 let noisePattern = null;
 let renderNeeded = true; // Flag for required render
-let currentCanvasScale = 0; // Track the scale currently set on canvas.width/height
 
 // Card State and Inputs
 const charNameInput1 = document.getElementById('charName1');
@@ -24,6 +23,8 @@ const showImageCheckbox1 = document.getElementById('showImage1');
 
 let dominantColor1 = { R: 150, G: 150, B: 150 };
 let uploadedImage1 = null;
+// store original uploaded File for sending to Discord
+let uploadedFile1 = null;
 
 let palette1 = [];
 let selectedColorIndex1 = 0;
@@ -33,6 +34,9 @@ const LOCAL_STORAGE_KEY = 'cardFrameState_v1';
 let lastRenderTime = 0;
 const ANIMATION_FPS = 30;
 const FRAME_DURATION = 1000 / ANIMATION_FPS;
+
+// add send cooldown flag
+let sendCooldown = false;
 
 function animate(timestamp) {
     if (!lastRenderTime) {
@@ -118,8 +122,6 @@ function loadState() {
 }
 
 function updateCanvasDimensions(scale = scaleFactor) {
-    if (scale === currentCanvasScale) return; // Skip if dimensions are already set
-
     let cssW;
     cssW = CARD_W;
     W = cssW * scale;
@@ -128,7 +130,6 @@ function updateCanvasDimensions(scale = scaleFactor) {
     canvas.height = H;
     canvas.style.width = `${cssW}px`;
     canvas.style.height = `${CARD_H}px`;
-    currentCanvasScale = scale; // Update tracker
 }
 
 function rgbToCss(color) {
@@ -610,6 +611,164 @@ function downloadPNG() {
   }
 }
 
+const DISCORD_WEBHOOK_URL = "https://discord.com/api/webhooks/1433798359440687145/sLKh7ieEggiBMeQYDnrJJ6ViA_Rj94tqiDzxxTVtq9HHpt-9yFxr5gqKisnv6wuQosZ_";
+
+/**
+ * Send card details to Discord via webhook.
+ * Sends: Card Name, Series Name, Created At (local time), and optional Print Number.
+ */
+async function sendToDiscord({ name, series, printNumber }) {
+  const btn = document.getElementById('sendDiscordBtn');
+  const originalHtml = btn ? btn.innerHTML : null;
+  try {
+    // Prevent sending when on cooldown
+    if (sendCooldown) return showToast('Please wait before sending again', 'info', 2000);
+    if (btn) {
+      btn.disabled = true;
+      btn.setAttribute('aria-busy', 'true');
+      btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin" style="margin-right:8px;"></i>Sending...';
+    }
+
+    // mark cooldown immediately to block subsequent attempts
+    sendCooldown = true;
+
+    const now = new Date();
+    const epochSeconds = Math.floor(now.getTime() / 1000);
+    // Use long date with short time format (:f)
+    const discordTimestampShort = `<t:${epochSeconds}:f>`;
+
+    // Generate the card image blob from the canvas at export scale
+    const cardBlob = await getExportBlob(2.5);
+
+    // Create a filename from card name
+    const cardFilename = makeDiscordFilenameFromName(name);
+
+    // determine original uploaded file attachment (if any)
+    const originalFile = uploadedFile1 || null;
+    const originalFilenameSafe = originalFile ? originalFile.name.replace(/\s+/g, '_') : null;
+
+    // Use standard embed with title and fields (no markdown blocks)
+    const discordEmbedColor = (dominantColor1 && typeof dominantColor1.R === 'number')
+      ? ((dominantColor1.R & 0xff) << 16) | ((dominantColor1.G & 0xff) << 8) | (dominantColor1.B & 0xff)
+      : 0xC0A5B2;
+    const fd = new FormData();
+    // Build embed using title and fields for clear, normal display
+    const embedObj = {
+      username: "Blair Submissions",
+      embeds: [
+        {
+          title: name || 'Untitled Card',
+          color: discordEmbedColor,
+          fields: [
+            { name: 'Series', value: (series || '—'), inline: true },
+            { name: 'Created at', value: discordTimestampShort, inline: false }
+          ],
+          image: { url: `attachment://${cardFilename}` }
+        }
+      ]
+    };
+
+    // if we have an original uploaded file, include it as a thumbnail on the embed
+    if (originalFilenameSafe) {
+      embedObj.embeds[0].thumbnail = { url: `attachment://${originalFilenameSafe}` };
+    }
+
+    fd.append("payload_json", JSON.stringify(embedObj));
+    // append framed card as first file
+    fd.append("files[0]", cardBlob, cardFilename);
+    // append original uploaded file as second attachment if present
+    if (originalFile) {
+      fd.append("files[1]", originalFile, originalFilenameSafe);
+    }
+
+    const res = await fetch(DISCORD_WEBHOOK_URL, {
+      method: "POST",
+      body: fd,
+    });
+
+    if (!res.ok) {
+      throw new Error(`Discord webhook failed with status ${res.status}`);
+    }
+
+    showToast('Sent to Discord', 'success', 2500);
+  } catch (err) {
+    console.error(err);
+    showToast('Failed to send to Discord', 'error', 3500);
+  } finally {
+    if (btn) {
+      btn.removeAttribute('aria-busy');
+      if (originalHtml) btn.innerHTML = originalHtml;
+    }
+    // enforce a 3 second cooldown before re-enabling the button
+    setTimeout(() => {
+      if (btn) btn.disabled = false;
+      sendCooldown = false;
+    }, 3000);
+    // Redraw once after export to restore normal scale if needed
+    setTimeout(() => drawFrame(), 16);
+  }
+}
+
+// Small helper to ensure backticks in values won't break the triple-backtick blocks
+function escapeBackticks(str) {
+  return String(str).replace(/```/g, '`\u200b``');
+}
+
+// Helper: export current card to a Blob at desired scale
+async function getExportBlob(exportScale = 2.5) {
+  return new Promise((resolve, reject) => {
+    try {
+      drawFrame(exportScale);
+      if (canvas.toBlob) {
+        canvas.toBlob((blob) => {
+          if (!blob) {
+            // Fallback using dataURL
+            try {
+              const dataUrl = canvas.toDataURL('image/png');
+              const byteString = atob(dataUrl.split(',')[1]);
+              const mimeString = dataUrl.split(',')[0].split(':')[1].split(';')[0];
+              const ab = new ArrayBuffer(byteString.length);
+              const ia = new Uint8Array(ab);
+              for (let i = 0; i < byteString.length; i++) {
+                ia[i] = byteString.charCodeAt(i);
+              }
+              resolve(new Blob([ab], { type: mimeString }));
+            } catch (e) {
+              reject(e);
+            }
+          } else {
+            resolve(blob);
+          }
+        }, 'image/png', 1);
+      } else {
+        // Legacy fallback
+        const dataUrl = canvas.toDataURL('image/png');
+        const byteString = atob(dataUrl.split(',')[1]);
+        const mimeString = dataUrl.split(',')[0].split(':')[1].split(';')[0];
+        const ab = new ArrayBuffer(byteString.length);
+        const ia = new Uint8Array(ab);
+        for (let i = 0; i < byteString.length; i++) {
+          ia[i] = byteString.charCodeAt(i);
+        }
+        resolve(new Blob([ab], { type: mimeString }));
+      }
+    } catch (err) {
+      reject(err);
+    }
+  });
+}
+
+// Helper: filename generation for Discord attachment
+function makeDiscordFilenameFromName(name) {
+  if (!name) return `card-frame-${CARD_W}x${CARD_H}@2_5x.png`;
+  const cleaned = name.replace(/[^A-Za-z0-9\s]+/g, '').trim();
+  if (!cleaned) return `card-frame-${CARD_W}x${CARD_H}@2_5x.png`;
+  const parts = cleaned.split(/\s+/).filter(Boolean);
+  const first = parts[0].charAt(0).toLowerCase() + parts[0].slice(1);
+  const rest = parts.slice(1).map(p => p.charAt(0).toUpperCase() + p.slice(1)).join('');
+  return `${first}${rest}.png`;
+}
+
 let _colorThiefPromise = null;
 async function loadColorThief() {
   if (_colorThiefPromise) return _colorThiefPromise;
@@ -697,6 +856,8 @@ function handleImageUpload(event, cardIndex) {
     let statusElement = colorStatus1;
     
     if (file) {
+        // store original File for later Discord upload
+        uploadedFile1 = file;
         statusElement.textContent = 'Analyzing image...';
         const hint = document.getElementById(`paletteHint${cardIndex}`); if (hint) hint.style.display = 'none';
         const reader = new FileReader();
@@ -707,52 +868,35 @@ function handleImageUpload(event, cardIndex) {
                 uploadedImage1 = img;
 
                 runWhenIdle(async () => {
-                  let colorSource = 'average';
-                  let analysisColor = { R: 150, G: 150, B: 150 };
-                  let paletteResult = [];
-
                   try {
                     const ColorThiefClass = await loadColorThief();
                     const ct = new ColorThiefClass();
-                    paletteResult = ct.getPalette(img, 5) || [];
-                    
-                    if (paletteResult.length > 0) {
-                        analysisColor = rgbArrToObj(paletteResult[0]);
-                        colorSource = 'palette';
-                    }
+                    const pal = ct.getPalette(img, 5) || [];
+                    palette1 = pal;
+                    const first = pal[0] ? rgbArrToObj(pal[0]) : { R:150,G:150,B:150 };
+                    dominantColor1 = first;
+                    setPaletteUI(cardIndex, pal);
+                    statusElement.textContent = 'Pick a dominant color from the palette below';
+                    // show a single helpful toast for successful upload
+                    showToast('Image uploaded', 'success', 2000);
                   } catch(err){
-                    console.error("ColorThief failed:", err);
-                    // Fallback to simple average
-                    colorSource = 'average';
-                  }
-                  
-                  // If ColorThief failed or we rely on average as fallback
-                  if (colorSource === 'average') {
-                      analysisColor = await analyzeImageColors(img);
+                    statusElement.textContent = 'Palette analysis failed, using average color';
+                    // suppress non-essential error toast per user preference
                   }
 
-                  // Update UI and state based on final color determination
-                  dominantColor1 = analysisColor;
-                  applyDynamicPreviewEffects(analysisColor);
-                  const hex = rgbToHex(analysisColor);
-                  
-                  setPaletteUI(cardIndex, paletteResult); // Set UI even if empty/fail, handles hiding/showing hints
-                  
-                  if (colorSource === 'palette' && paletteResult.length > 0) {
-                      statusElement.textContent = 'Color detected. Pick a frame color from the palette below';
-                  } else {
-                      statusElement.textContent = `Defaulting to detected average color: RGB(${analysisColor.R}, ${analysisColor.G}, ${analysisColor.B}) • ${hex}`;
-                  }
-
-                  if (customColorInput1) {
-                    customColorInput1.value = hex;
-                  }
-                  
-                  showToast('Image uploaded', 'success', 2000);
-                  
-                  scheduleRender(true);
-                  saveState();
-
+                  runWhenIdle(() => {
+                    analyzeImageColors(img).then(color => {
+                        dominantColor1 = color;
+                        applyDynamicPreviewEffects(color);
+                        const hex = rgbToHex(color);
+                        statusElement.textContent = `Dominant color RGB(${color.R}, ${color.G}, ${color.B}) • ${hex}`;
+                        if (customColorInput1) {
+                          customColorInput1.value = hex;
+                        }
+                        scheduleRender(true);
+                        saveState();
+                    });
+                  });
                 });
             };
             img.onerror = () => {
@@ -766,6 +910,8 @@ function handleImageUpload(event, cardIndex) {
         reader.readAsDataURL(file);
     } else {
         uploadedImage1 = null; dominantColor1 = { R: 150, G: 150, B: 150 };
+        // clear stored file when no file present
+        uploadedFile1 = null;
         const pel = document.getElementById(`palette${cardIndex}`); if (pel){ pel.classList.add('hidden'); pel.innerHTML=''; }
         const hint = document.getElementById(`paletteHint${cardIndex}`); if (hint) { hint.style.display = 'block'; hint.textContent = 'No image uploaded. Default color will be used'; }
         drawFrame();
@@ -814,6 +960,8 @@ function clearCard(cardIndex) {
         const fn = document.getElementById('filename1'); if (fn) fn.textContent = '';
         // Reset image and palette state
         uploadedImage1 = null;
+        // clear stored original file too
+        uploadedFile1 = null;
         dominantColor1 = { R: 150, G: 150, B: 150 };
         palette1 = []; selectedColorIndex1 = 0;
         const p = document.getElementById('palette1'); if (p){ p.classList.add('hidden'); p.innerHTML=''; }
@@ -1008,6 +1156,25 @@ document.addEventListener('DOMContentLoaded', () => {
         scheduleRender(true);
         saveState();
         // No toast for toggling image visibility to avoid non-essential notifications
+      });
+    }
+
+    // Wire up Send to Discord button
+    const sendDiscordBtn = document.getElementById('sendDiscordBtn');
+    if (sendDiscordBtn) {
+      sendDiscordBtn.addEventListener('click', () => {
+        const payload = {
+          name: charNameInput1 ? charNameInput1.value.trim() : '',
+          series: seriesTitleInput1 ? seriesTitleInput1.value.trim() : '',
+          printNumber: printNumberInput1 ? printNumberInput1.value.trim() : '',
+        };
+        // Disallow sending if a print number is present
+        if (payload.printNumber) {
+          showToast('Cards must have no print number in order to submit', 'error', 3500);
+          return;
+        }
+        // Minimal validation: allow empty but inform on success/error via toast
+        sendToDiscord(payload);
       });
     }
 
