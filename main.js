@@ -10,9 +10,8 @@ const ctx = canvas.getContext('2d');
 
 let animPhase = 0;
 let noisePattern = null;
-let renderNeeded = true; // Flag for required render
+let renderNeeded = true;
 
-// Card State and Inputs
 const charNameInput1 = document.getElementById('charName1');
 const seriesTitleInput1 = document.getElementById('seriesTitle1');
 const printNumberInput1 = document.getElementById('printNumber1');
@@ -23,7 +22,6 @@ const showImageCheckbox1 = document.getElementById('showImage1');
 
 let dominantColor1 = { R: 150, G: 150, B: 150 };
 let uploadedImage1 = null;
-// store original uploaded File for sending to Discord
 let uploadedFile1 = null;
 
 let palette1 = [];
@@ -35,8 +33,13 @@ let lastRenderTime = 0;
 const ANIMATION_FPS = 30;
 const FRAME_DURATION = 1000 / ANIMATION_FPS;
 
-// add send cooldown flag
 let sendCooldown = false;
+
+let tutorialManagerInstance = null;
+
+let topbarPurgeAwaitingConfirm = false;
+let topbarPurgeTimer = null;
+const TOPBAR_PURGE_CONFIRM_MS = 5000;
 
 function animate(timestamp) {
     if (!lastRenderTime) {
@@ -81,17 +84,14 @@ function loadState() {
         if (storedState) {
             const state = JSON.parse(storedState);
             
-            // apply text inputs
             if (state.charName1 !== undefined) charNameInput1.value = state.charName1;
             if (state.seriesTitle1 !== undefined) seriesTitleInput1.value = state.seriesTitle1;
             if (state.printNumber1 !== undefined) printNumberInput1.value = state.printNumber1;
             
-            // apply checkbox state
             if (state.showImage1 !== undefined) {
                 showImageCheckbox1.checked = state.showImage1;
             }
 
-            // Determine effective dominant color from state
             let effectiveColorHex = rgbToHex(dominantColor1);
             if (state.dominantColor1) {
                 dominantColor1 = state.dominantColor1;
@@ -103,18 +103,15 @@ function loadState() {
                     statusEl.textContent = `Restored previous color: RGB(${col.R}, ${col.G}, ${col.B}) • ${effectiveColorHex}`;
                 }
             } else if (state.customColor1 !== undefined) {
-                 // Fallback: If only saved hex is present, use it to restore the internal RGB object
                  dominantColor1 = hexToRgb(state.customColor1);
                  effectiveColorHex = state.customColor1;
             }
             
-            // Ensure custom color input reflects the effective dominant color (restored or default)
             if (customColorInput1) {
                 customColorInput1.value = effectiveColorHex;
             }
             
-            updateLengthWarning(1);
-            // scheduleRender is called after DOMContentLoaded
+            updateLengthWarning();
         }
     } catch (e) {
         console.error("error loading state from local storage:", e);
@@ -146,32 +143,6 @@ function hexToRgb(hex) {
     return { R: (n >> 16) & 255, G: (n >> 8) & 255, B: n & 255 };
 }
 
-/**
- * sample image → approximate average color
- * returns {R,G,B}
- */
-function analyzeImageColors(img) {
-    return new Promise(resolve => {
-        const tempCanvas = document.createElement('canvas');
-        const tempCtx = tempCanvas.getContext('2d');
-        const sampleSize = 100;
-        tempCanvas.width = sampleSize;
-        tempCanvas.height = sampleSize;
-        tempCtx.drawImage(img, 0, 0, sampleSize, sampleSize);
-        const imageData = tempCtx.getImageData(0, 0, sampleSize, sampleSize).data;
-        let r = 0, g = 0, b = 0, pixelCount = 0;
-        for (let i = 0; i < imageData.length; i += 16) {
-            r += imageData[i];
-            g += imageData[i + 1];
-            b += imageData[i + 2];
-            pixelCount++;
-        }
-        if (pixelCount === 0) return resolve({ R: 150, G: 150, B: 150 });
-        resolve({ R: Math.floor(r / pixelCount), G: Math.floor(g / pixelCount), B: Math.floor(b / pixelCount) });
-    });
-}
-
-/* helper to nudge rgb values */
 function adjustColor(color, delta) {
     return {
         R: Math.max(0, Math.min(255, color.R + delta)),
@@ -180,7 +151,6 @@ function adjustColor(color, delta) {
     };
 }
 
-/* create subtle translucent background from a color */
 function createTranslucentBg(color, opacity, darkenFactor = 0.6) {
     const luminance = (0.299 * color.R + 0.587 * color.G + 0.114 * color.B) / 255;
     const factor = (1 - luminance) * darkenFactor;
@@ -191,7 +161,6 @@ function createTranslucentBg(color, opacity, darkenFactor = 0.6) {
     return `rgba(${Math.floor(R)}, ${Math.floor(G)}, ${Math.floor(B)}, ${effectiveOpacity})`;
 }
 
-/* noise texture for subtle surface */
 function createNoisePattern() {
     if (noisePattern) return noisePattern;
     const pCan = document.createElement('canvas');
@@ -219,11 +188,6 @@ function applyDynamicPreviewEffects(dominantColor) {
     preview.setAttribute('data-halo-color', halo);
     preview.style.setProperty('--frame-halo-alpha', '0.10');
     preview.style.setProperty('--halo-color', halo);
-    preview.querySelectorAll('.etch, .vignette, .rim-highlight').forEach(el => {
-      el.style.background = el.classList.contains('vignette')
-        ? `radial-gradient(ellipse at center, rgba(0,0,0,0) 40%, rgba(0,0,0,0.28) 100%)`
-        : el.style.background;
-    });
 }
 
 function roundRectPath(x, y, w, h, r) {
@@ -241,10 +205,6 @@ function roundRectPath(x, y, w, h, r) {
   ctx.closePath();
 }
 
-/**
- * draw one card at offset
- * textData: {charName, seriesTitle, printNumber}
- */
 function drawSingleCard(offsetX, colorData, uploadedImage, textData, showImage = true) {
   const charName = textData.charName;
   const seriesTitle = textData.seriesTitle;
@@ -267,7 +227,6 @@ function drawSingleCard(offsetX, colorData, uploadedImage, textData, showImage =
 
   const primary = 'rgba(255, 255, 255, 1.0)';
   const secondary = 'rgba(255, 255, 255, 0.8)';
-  const tertiary = 'rgba(255, 255, 255, 0.4)';
   const textBg = createTranslucentBg(baseColor, 0.6, 0.5);
   const bottomTextBg = createTranslucentBg(baseColor, 0.1, 0.5);
 
@@ -285,8 +244,6 @@ function drawSingleCard(offsetX, colorData, uploadedImage, textData, showImage =
 
   const topTextHeight = 30;
   const bottomTextHeight = 30;
-
-  const art = { x: inner.x, y: inner.y + topTextHeight, w: inner.w, h: inner.h - topTextHeight - bottomTextHeight, r: inner.r };
 
   ctx.save();
   roundRectPath(outer.x, outer.y, outer.w, outer.h, outer.r);
@@ -510,7 +467,6 @@ function drawSingleCard(offsetX, colorData, uploadedImage, textData, showImage =
   ctx.translate(-offsetX, 0);
 }
 
-/* truncate text for canvas display and append '..' if cut */
 function truncateForCanvas(text, limit = 18) {
   if (!text) return '';
   if (text.length <= limit) return text;
@@ -522,9 +478,8 @@ function drawFrame(exportScale = scaleFactor) {
   updateCanvasDimensions(exportScale);
   ctx.clearRect(0, 0, W, H);
   
-  // Fix for mobile Safari flickering: explicitly fill background for preview mode.
   if (exportScale === scaleFactor) {
-    ctx.fillStyle = '#000'; // Use black, matching the .preview container background
+    ctx.fillStyle = '#000';
     ctx.fillRect(0, 0, W, H);
   }
 
@@ -548,7 +503,7 @@ let renderTimer = null;
 const RENDER_DEBOUNCE_MS = 80;
 
 function scheduleRender(immediate = false) {
-    renderNeeded = true; // Signal that a render is required
+    renderNeeded = true;
     if (renderTimer) clearTimeout(renderTimer);
     if (!immediate) {
         renderTimer = setTimeout(() => { renderTimer = null; renderNeeded = true; }, RENDER_DEBOUNCE_MS);
@@ -567,10 +522,8 @@ function downloadPNG() {
 
   drawFrame(exportScale);
 
-  // create a filename from character name (fallback to default)
   function makeFilenameFromName(name, width, scale) {
     if (!name) return `card-frame-${width}x${CARD_H}@${scale}x.png`;
-    // keep letters/numbers only, split words, join so first word lowercase, subsequent words capitalized
     const cleaned = name.replace(/[^A-Za-z0-9\s]+/g, '').trim();
     if (!cleaned) return `card-frame-${width}x${CARD_H}@${scale}x.png`;
     const parts = cleaned.split(/\s+/).filter(Boolean);
@@ -598,7 +551,6 @@ function downloadPNG() {
       document.body.appendChild(link);
       link.click();
       setTimeout(() => { URL.revokeObjectURL(url); link.remove(); }, 200);
-      // redraw once after export to restore normal scale without double flashing
       setTimeout(() => drawFrame(), 16);
     }, 'image/png', 1);
   } else {
@@ -613,15 +565,10 @@ function downloadPNG() {
 
 const DISCORD_WEBHOOK_URL = "https://discord.com/api/webhooks/1433798359440687145/sLKh7ieEggiBMeQYDnrJJ6ViA_Rj94tqiDzxxTVtq9HHpt-9yFxr5gqKisnv6wuQosZ_";
 
-/**
- * Send card details to Discord via webhook.
- * Sends: Card Name, Series Name, Created At (local time), and optional Print Number.
- */
 async function sendToDiscord({ name, series, printNumber }) {
   const btn = document.getElementById('sendDiscordBtn');
   const originalHtml = btn ? btn.innerHTML : null;
   try {
-    // Prevent sending when on cooldown
     if (sendCooldown) return showToast('Please wait before sending again', 'info', 2000);
     if (btn) {
       btn.disabled = true;
@@ -629,30 +576,23 @@ async function sendToDiscord({ name, series, printNumber }) {
       btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin" style="margin-right:8px;"></i>Sending...';
     }
 
-    // mark cooldown immediately to block subsequent attempts
     sendCooldown = true;
 
     const now = new Date();
     const epochSeconds = Math.floor(now.getTime() / 1000);
-    // Use long date with short time format (:f)
     const discordTimestampShort = `<t:${epochSeconds}:f>`;
 
-    // Generate the card image blob from the canvas at export scale
     const cardBlob = await getExportBlob(2.5);
 
-    // Create a filename from card name
     const cardFilename = makeDiscordFilenameFromName(name);
 
-    // determine original uploaded file attachment (if any)
     const originalFile = uploadedFile1 || null;
     const originalFilenameSafe = originalFile ? originalFile.name.replace(/\s+/g, '_') : null;
 
-    // Use standard embed with title and fields (no markdown blocks)
     const discordEmbedColor = (dominantColor1 && typeof dominantColor1.R === 'number')
       ? ((dominantColor1.R & 0xff) << 16) | ((dominantColor1.G & 0xff) << 8) | (dominantColor1.B & 0xff)
       : 0xC0A5B2;
     const fd = new FormData();
-    // Build embed using title and fields for clear, normal display
     const embedObj = {
       username: "Blair Submissions",
       embeds: [
@@ -668,15 +608,12 @@ async function sendToDiscord({ name, series, printNumber }) {
       ]
     };
 
-    // if we have an original uploaded file, include it as a thumbnail on the embed
     if (originalFilenameSafe) {
       embedObj.embeds[0].thumbnail = { url: `attachment://${originalFilenameSafe}` };
     }
 
     fd.append("payload_json", JSON.stringify(embedObj));
-    // append framed card as first file
     fd.append("files[0]", cardBlob, cardFilename);
-    // append original uploaded file as second attachment if present
     if (originalFile) {
       fd.append("files[1]", originalFile, originalFilenameSafe);
     }
@@ -699,22 +636,14 @@ async function sendToDiscord({ name, series, printNumber }) {
       btn.removeAttribute('aria-busy');
       if (originalHtml) btn.innerHTML = originalHtml;
     }
-    // enforce a 3 second cooldown before re-enabling the button
     setTimeout(() => {
       if (btn) btn.disabled = false;
       sendCooldown = false;
     }, 3000);
-    // Redraw once after export to restore normal scale if needed
     setTimeout(() => drawFrame(), 16);
   }
 }
 
-// Small helper to ensure backticks in values won't break the triple-backtick blocks
-function escapeBackticks(str) {
-  return String(str).replace(/```/g, '`\u200b``');
-}
-
-// Helper: export current card to a Blob at desired scale
 async function getExportBlob(exportScale = 2.5) {
   return new Promise((resolve, reject) => {
     try {
@@ -722,7 +651,6 @@ async function getExportBlob(exportScale = 2.5) {
       if (canvas.toBlob) {
         canvas.toBlob((blob) => {
           if (!blob) {
-            // Fallback using dataURL
             try {
               const dataUrl = canvas.toDataURL('image/png');
               const byteString = atob(dataUrl.split(',')[1]);
@@ -741,7 +669,6 @@ async function getExportBlob(exportScale = 2.5) {
           }
         }, 'image/png', 1);
       } else {
-        // Legacy fallback
         const dataUrl = canvas.toDataURL('image/png');
         const byteString = atob(dataUrl.split(',')[1]);
         const mimeString = dataUrl.split(',')[0].split(':')[1].split(';')[0];
@@ -758,7 +685,6 @@ async function getExportBlob(exportScale = 2.5) {
   });
 }
 
-// Helper: filename generation for Discord attachment
 function makeDiscordFilenameFromName(name) {
   if (!name) return `card-frame-${CARD_W}x${CARD_H}@2_5x.png`;
   const cleaned = name.replace(/[^A-Za-z0-9\s]+/g, '').trim();
@@ -788,11 +714,8 @@ function showToast(message, type = 'info', duration = 4000) {
     const container = document.getElementById('toast-container');
     if (!container) return;
 
-    // Prevent duplicate recent toasts and limit visible toasts to 2
-    // Keep a short-lived cache on window for dedupe
     window._toastCache = window._toastCache || { lastMessage: null, lastTime: 0, visible: 0 };
     const now = Date.now();
-    // If same message within 1.2s, skip
     if (window._toastCache.lastMessage === message && (now - window._toastCache.lastTime) < 1200) {
         return;
     }
@@ -809,24 +732,17 @@ function showToast(message, type = 'info', duration = 4000) {
          iconClass = 'fa-circle-xmark';
      }
      
-     // Clean message of advanced punctuation as requested
-     const cleanMessage = message.replace(/[;:\u2014]/g, ''); // Removed em dash and punctuation
+     const cleanMessage = message.replace(/[;:\u2014]/g, '');
 
      toast.innerHTML = `<span class="toast-icon"><i class="fa-solid ${iconClass}"></i></span><span>${cleanMessage}</span>`;
      
-     // Limit visible toasts to 2 to avoid spammy UI
      while (container.children.length >= 2) {
-         // remove the oldest toast immediately
          container.removeChild(container.children[0]);
      }
 
      container.appendChild(toast);
      window._toastCache.visible = container.children.length;
 
-     // Force reflow to ensure CSS transition works from initial state
-     // void toast.offsetWidth;
-
-     // Start transition in the next microtask/event loop tick
      setTimeout(() => {
          toast.classList.add('show');
      }, 0);
@@ -836,7 +752,6 @@ function showToast(message, type = 'info', duration = 4000) {
          toast.addEventListener('transitionend', () => toast.remove(), { once: true });
      }, duration);
      
-     // Allow user to dismiss manually by clicking
      toast.addEventListener('click', () => {
          clearTimeout(timer);
          toast.classList.remove('show');
@@ -844,8 +759,7 @@ function showToast(message, type = 'info', duration = 4000) {
      });
 }
 
-function handleImageUpload(event, cardIndex) {
-    // Preserve current text inputs so file chooser does not accidentally clear them
+function handleImageUpload(event) {
     const prevInputs = {
         charName: charNameInput1 ? charNameInput1.value : '',
         seriesTitle: seriesTitleInput1 ? seriesTitleInput1.value : '',
@@ -856,10 +770,9 @@ function handleImageUpload(event, cardIndex) {
     let statusElement = colorStatus1;
     
     if (file) {
-        // store original File for later Discord upload
         uploadedFile1 = file;
         statusElement.textContent = 'Analyzing image...';
-        const hint = document.getElementById(`paletteHint${cardIndex}`); if (hint) hint.style.display = 'none';
+        const hint = document.getElementById(`paletteHint1`); if (hint) hint.style.display = 'none';
         const reader = new FileReader();
         reader.onload = (e) => {
             const img = new Image();
@@ -871,38 +784,39 @@ function handleImageUpload(event, cardIndex) {
                   try {
                     const ColorThiefClass = await loadColorThief();
                     const ct = new ColorThiefClass();
+                    
+                    // Get dominant color and palette
+                    const dominantRgb = ct.getColor(img) || [150, 150, 150];
                     const pal = ct.getPalette(img, 5) || [];
+                    
+                    dominantColor1 = rgbArrToObj(dominantRgb);
                     palette1 = pal;
-                    const first = pal[0] ? rgbArrToObj(pal[0]) : { R:150,G:150,B:150 };
-                    dominantColor1 = first;
-                    setPaletteUI(cardIndex, pal);
-                    statusElement.textContent = 'Pick a dominant color from the palette below';
-                    // show a single helpful toast for successful upload
+                    
+                    setPaletteUI(pal);
+                    
+                    applyDynamicPreviewEffects(dominantColor1);
+                    const hex = rgbToHex(dominantColor1);
+                    
+                    statusElement.textContent = `Dominant color RGB(${dominantColor1.R}, ${dominantColor1.G}, ${dominantColor1.B}) • ${hex}`;
+                    if (customColorInput1) {
+                        customColorInput1.value = hex;
+                    }
+
+                    scheduleRender(true);
+                    saveState();
                     showToast('Image uploaded', 'success', 2000);
                   } catch(err){
-                    statusElement.textContent = 'Palette analysis failed, using average color';
-                    // suppress non-essential error toast per user preference
+                    console.error("Color analysis failed:", err);
+                    statusElement.textContent = 'Color analysis failed. Using default color.';
+                    dominantColor1 = { R: 150, G: 150, B: 150 };
+                    scheduleRender(true);
+                    saveState();
                   }
-
-                  runWhenIdle(() => {
-                    analyzeImageColors(img).then(color => {
-                        dominantColor1 = color;
-                        applyDynamicPreviewEffects(color);
-                        const hex = rgbToHex(color);
-                        statusElement.textContent = `Dominant color RGB(${color.R}, ${color.G}, ${color.B}) • ${hex}`;
-                        if (customColorInput1) {
-                          customColorInput1.value = hex;
-                        }
-                        scheduleRender(true);
-                        saveState();
-                    });
-                  });
                 });
             };
             img.onerror = () => {
                  statusElement.textContent = 'Error loading image';
                  uploadedImage1 = null; dominantColor1 = { R: 150, G: 150, B: 150 };
-                 // suppress non-essential error toast per user preference
                  drawFrame();
             }
             img.src = e.target.result;
@@ -910,25 +824,25 @@ function handleImageUpload(event, cardIndex) {
         reader.readAsDataURL(file);
     } else {
         uploadedImage1 = null; dominantColor1 = { R: 150, G: 150, B: 150 };
-        // clear stored file when no file present
         uploadedFile1 = null;
-        const pel = document.getElementById(`palette${cardIndex}`); if (pel){ pel.classList.add('hidden'); pel.innerHTML=''; }
-        const hint = document.getElementById(`paletteHint${cardIndex}`); if (hint) { hint.style.display = 'block'; hint.textContent = 'No image uploaded. Default color will be used'; }
+        dominantColor1 = { R: 150, G: 150, B: 150 };
+        palette1 = []; selectedColorIndex1 = 0;
+        const p = document.getElementById(`palette1`); if (p){ p.classList.add('hidden'); p.innerHTML=''; }
+        const hint = document.getElementById(`paletteHint1`); if (hint) { hint.style.display = 'block'; hint.textContent = 'No image uploaded. Default color will be used'; }
         drawFrame();
     }
 
-    // Restore preserved text inputs to ensure choosing or cancelling a file never clears user text
     if (charNameInput1) charNameInput1.value = prevInputs.charName;
     if (seriesTitleInput1) seriesTitleInput1.value = prevInputs.seriesTitle;
     if (printNumberInput1) printNumberInput1.value = prevInputs.printNumber;
 
 }
 
-function setPaletteUI(cardIndex, palette) {
-  const el = document.getElementById(`palette${cardIndex}`); if (!el) return;
+function setPaletteUI(palette) {
+  const el = document.getElementById(`palette1`); if (!el) return;
   el.innerHTML = ''; el.classList.remove('hidden');
-  const hint = document.getElementById(`paletteHint${cardIndex}`); if (hint) hint.style.display = 'none';
-  const statusEl = document.getElementById(`colorStatus${cardIndex}`);
+  const hint = document.getElementById(`paletteHint1`); if (hint) hint.style.display = 'none';
+  const statusEl = document.getElementById(`colorStatus1`);
   palette.forEach((c, i) => {
     const d = document.createElement('button');
     d.className = 'swatch' + (i===0 ? ' selected':''); d.title = `RGB(${c[0]},${c[1]},${c[2]})`;
@@ -943,7 +857,6 @@ function setPaletteUI(cardIndex, palette) {
       }
       scheduleRender(true);
       saveState();
-      // No toast for palette selection to avoid non-essential notifications
     };
     el.appendChild(d);
   });
@@ -951,31 +864,22 @@ function setPaletteUI(cardIndex, palette) {
 
 function rgbArrToObj(arr){ return { R: arr[0], G: arr[1], B: arr[2] }; }
 
-function clearCard(cardIndex) {
-    // Only clear image/palette for the card; do not clear text inputs when using the trash button.
-    if (cardIndex === 1) {
-        // Remove image file selection and filename display
-        const fileInput = document.getElementById('imageUpload1');
-        if (fileInput) fileInput.value = '';
-        const fn = document.getElementById('filename1'); if (fn) fn.textContent = '';
-        // Reset image and palette state
-        uploadedImage1 = null;
-        // clear stored original file too
-        uploadedFile1 = null;
-        dominantColor1 = { R: 150, G: 150, B: 150 };
-        palette1 = []; selectedColorIndex1 = 0;
-        const p = document.getElementById('palette1'); if (p){ p.classList.add('hidden'); p.innerHTML=''; }
-        if (colorStatus1) colorStatus1.textContent = '';
-        // Save state but keep text inputs intact
-        saveState();
-    }
+function clearCard() {
+    const fileInput = document.getElementById('imageUpload1');
+    if (fileInput) fileInput.value = '';
+    const fn = document.getElementById('filename1'); if (fn) fn.textContent = '';
+    uploadedImage1 = null;
+    uploadedFile1 = null;
+    dominantColor1 = { R: 150, G: 150, B: 150 };
+    palette1 = []; selectedColorIndex1 = 0;
+    const p = document.getElementById('palette1'); if (p){ p.classList.add('hidden'); p.innerHTML=''; }
+    if (colorStatus1) colorStatus1.textContent = '';
+    saveState();
     scheduleRender(true);
 }
 
 function clearAll() {
-    // Full reset: remove image/palette and clear all text inputs and controls
-    clearCard(1);
-    // Clear text inputs explicitly for full reset
+    clearCard();
     if (charNameInput1) charNameInput1.value = '';
     if (seriesTitleInput1) seriesTitleInput1.value = '';
     if (printNumberInput1) printNumberInput1.value = '';
@@ -983,7 +887,6 @@ function clearAll() {
     if (showImageCheckbox1) showImageCheckbox1.checked = true;
     dominantColor1 = { R: 150, G: 150, B: 150 };
     saveState();
-    // Show a toast for delete/clear confirmation per user preference
     showToast('All inputs cleared and settings reset', 'success');
 }
 
@@ -992,7 +895,10 @@ function attachDropZone(dropzoneId) {
   if (!dz) return;
   const input = document.getElementById(dz.getAttribute('data-target-input'));
   const filenameEl = document.getElementById(`filename${dropzoneId.replace('dropzone','')}`);
-  dz.addEventListener('click', () => input.click());
+  dz.addEventListener('click', (e) => {
+    const clickedInteractive = e.target.closest('button, a, input, label');
+    if (!clickedInteractive) input.click();
+  });
   dz.addEventListener('keydown', (e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); input.click(); }});
   ['dragenter','dragover'].forEach(ev => dz.addEventListener(ev, (e)=>{ e.preventDefault(); dz.classList.add('dragover'); }));
   ['dragleave','dragend','drop'].forEach(ev => dz.addEventListener(ev, (e)=>{ e.preventDefault(); dz.classList.remove('dragover'); }));
@@ -1000,22 +906,22 @@ function attachDropZone(dropzoneId) {
     const file = e.dataTransfer && e.dataTransfer.files && e.dataTransfer.files[0];
     if (file) {
       const dt = { target: { files: [file] } };
-      handleImageUpload(dt, 1);
+      handleImageUpload(dt);
       if (filenameEl) filenameEl.textContent = file.name;
     }
   });
   input.addEventListener('change', (e) => {
     const f = e.target.files[0];
     if (filenameEl) filenameEl.textContent = f ? f.name : '';
-    handleImageUpload(e, 1);
+    handleImageUpload(e);
   });
 }
 
-function updateLengthWarning(cardIndex) {
-  const nameInput = document.getElementById(`charName${cardIndex}`);
-  const seriesInput = document.getElementById(`seriesTitle${cardIndex}`);
-  const nameWarn = document.getElementById(`charWarn${cardIndex}`);
-  const seriesWarn = document.getElementById(`seriesWarn${cardIndex}`);
+function updateLengthWarning() {
+  const nameInput = document.getElementById(`charName1`);
+  const seriesInput = document.getElementById(`seriesTitle1`);
+  const nameWarn = document.getElementById(`charWarn1`);
+  const seriesWarn = document.getElementById(`seriesWarn1`);
   const VISIBLE_LIMIT = 18;
   if (nameInput && nameWarn) {
     const len = nameInput.value.length;
@@ -1035,23 +941,291 @@ function updateLengthWarning(cardIndex) {
   }
 }
 
+class TutorialManager {
+    constructor() {
+        this.STORAGE_KEY = 'cardFrameTutorialDone';
+        this.isDone = localStorage.getItem(this.STORAGE_KEY) === 'true';
+
+        this.overlay = document.getElementById('tutorial-overlay');
+        this.backdrop = document.getElementById('tutorial-backdrop');
+        this.popover = document.getElementById('tutorial-popover');
+        this.popoverTitle = document.getElementById('tutorial-title');
+        this.popoverBody = document.getElementById('tutorial-body');
+        this.stepIndicator = document.getElementById('tutorial-step-indicator');
+        this.nextBtn = document.getElementById('tutorial-next-btn');
+        this.skipBtn = document.getElementById('tutorial-skip-btn');
+        this.prevBtn = document.getElementById('tutorial-prev-btn');
+
+
+        this.steps = [
+            { id: 'dropzone1', title: 'Step 1: Upload Your Image', body: 'Start by uploading your artwork here. JPGs and PNGs are supported.' },
+            { id: 'customColor1', title: 'Step 2: Select a Frame Color', body: 'The color is detected automatically, but you can override it by picking a swatch or a custom color here.' },
+            { id: 'charName1', title: 'Step 3: Add Card Details', body: 'Fill in the Character Name and Series Title. The print number is optional for non-submission cards.' },
+            { id: 'sendDiscordBtn', title: 'Step 4: Submit to Discord', body: 'Once ready, use this button to send your card details and image to Discord for review (requires no print number).' },
+            { id: 'downloadBtn', title: 'Step 5: Download PNG', body: 'Finally, click here to download your high-resolution finished card image.' }
+        ];
+        
+        this.currentStepIndex = 0;
+
+        this.highlightEl = document.createElement('div');
+        this.highlightEl.className = 'tutorial-highlight';
+        this.overlay.appendChild(this.highlightEl);
+
+        this.initListeners();
+    }
+
+    initListeners() {
+        if (!this.overlay) return;
+        
+        this.backdrop.addEventListener('click', (e) => {
+            if (e.target.id === 'tutorial-backdrop') {
+                this.nextStep();
+            }
+        });
+
+        this.nextBtn.addEventListener('click', () => this.nextStep());
+        this.skipBtn.addEventListener('click', () => this.endTour());
+        if (this.prevBtn) {
+            this.prevBtn.addEventListener('click', () => this.prevStep());
+        }
+
+
+        window.addEventListener('resize', () => this.updatePopoverPosition(true), { passive: true });
+        window.addEventListener('scroll', () => this.updatePopoverPosition(false), { passive: true });
+    }
+
+    startTour() {
+        if (!this.overlay) return this.endTour(true);
+        this.currentStepIndex = 0;
+        this.overlay.style.display = 'block';
+        this.overlay.classList.add('active');
+        this.showStep(0);
+    }
+    
+    endTour(initialLoad = false) {
+        if (!this.overlay) return;
+        this.overlay.style.display = 'none';
+        this.overlay.classList.remove('active');
+        localStorage.setItem(this.STORAGE_KEY, 'true');
+        this.isDone = true;
+        if (!initialLoad) {
+            showToast('Tutorial finished. Happy cardmaking!', 'success', 2500);
+        }
+    }
+    
+    nextStep() {
+        if (this.currentStepIndex < this.steps.length - 1) {
+            this.currentStepIndex++;
+            this.showStep(this.currentStepIndex);
+        } else {
+            this.endTour();
+        }
+    }
+    
+    prevStep() {
+        if (this.currentStepIndex > 0) {
+            this.currentStepIndex--;
+            this.showStep(this.currentStepIndex);
+        }
+    }
+
+    showStep(index) {
+        const step = this.steps[index];
+        const targetEl = document.getElementById(step.id);
+        
+        if (!targetEl) {
+            console.warn(`Tutorial target element ${step.id} not found.`);
+            this.nextStep(); 
+            return;
+        }
+
+        this.popoverTitle.textContent = step.title;
+        this.popoverBody.textContent = step.body;
+        this.stepIndicator.textContent = `Step ${index + 1} of ${this.steps.length}`;
+        
+        if (this.prevBtn) {
+            this.prevBtn.style.display = index === 0 ? 'none' : 'block';
+        }
+        
+        if (index === this.steps.length - 1) {
+            this.nextBtn.innerHTML = 'Finish';
+        } else {
+            this.nextBtn.innerHTML = 'Next';
+        }
+
+        targetEl.scrollIntoView({ behavior: 'smooth', block: 'center' });
+        
+        if (this.popover) {
+            this.popover.classList.add('visible');
+            this.popover.style.visibility = 'hidden';
+        }
+        setTimeout(() => this.updatePopoverPosition(true), 200);
+    }
+    
+    updatePopoverPosition(forceRecalc) {
+        const step = this.steps[this.currentStepIndex];
+        const targetEl = document.getElementById(step.id);
+        if (!targetEl || !this.popover || (!this.popover.classList.contains('visible') && !forceRecalc)) {
+            return;
+        }
+        
+        const rect = targetEl.getBoundingClientRect();
+        
+        const padding = 8;
+        this.highlightEl.style.width = `${rect.width + padding * 2}px`;
+        this.highlightEl.style.height = `${rect.height + padding * 2}px`;
+        this.highlightEl.style.left = `${rect.left - padding}px`;
+        this.highlightEl.style.top = `${rect.top - padding}px`;
+        
+        const vw = window.innerWidth;
+        const vh = window.innerHeight;
+        
+        const popoverWidth = this.popover.offsetWidth;
+        const popoverHeight = this.popover.offsetHeight;
+        const margin = 20;
+
+        let left, top;
+        let position = 'right';
+
+        if (rect.right + margin + popoverWidth < vw) {
+            left = rect.right + margin;
+            top = rect.top + rect.height / 2 - popoverHeight / 2;
+            position = 'right';
+        } 
+        else if (rect.left - margin - popoverWidth > 0) {
+            left = rect.left - margin - popoverWidth;
+            top = rect.top + rect.height / 2 - popoverHeight / 2;
+            position = 'left';
+        }
+        else {
+            left = rect.left + rect.width / 2 - popoverWidth / 2;
+            top = rect.bottom + margin;
+            position = 'bottom';
+        }
+
+        left = Math.max(margin, Math.min(vw - popoverWidth - margin, left));
+        top = Math.max(margin, Math.min(vh - popoverHeight - margin, top));
+
+        if (vw < 600 || position === 'bottom') {
+            left = rect.left + rect.width / 2 - popoverWidth / 2;
+            if (rect.bottom + margin + popoverHeight > vh) {
+                 top = vh - popoverHeight - margin;
+            } else {
+                 top = rect.bottom + margin;
+            }
+            left = Math.max(margin, Math.min(vw - popoverWidth - margin, left));
+            
+            this.popover.classList.add('mobile-bottom');
+        } else {
+            this.popover.classList.remove('mobile-bottom');
+        }
+        
+        this.popover.style.visibility = 'visible';
+        this.popover.style.left = `${left}px`;
+        this.popover.style.top = `${top}px`;
+    }
+}
+
+function showConfirmToast(message, confirmAction, type = 'error', duration = 6000) {
+    const container = document.getElementById('toast-container');
+    if (!container) return;
+    const toast = document.createElement('div');
+    toast.className = `toast ${type}`;
+    toast.innerHTML = `<span class="toast-icon"><i class="fa-solid fa-circle-exclamation"></i></span><span>${message}</span>`;
+    while (container.children.length >= 2) {
+        container.removeChild(container.children[0]);
+    }
+    container.appendChild(toast);
+    setTimeout(() => toast.classList.add('show'), 10);
+
+    const timer = setTimeout(() => {
+        toast.classList.remove('show');
+        toast.addEventListener('transitionend', () => toast.remove(), { once: true });
+    }, duration);
+
+    toast.addEventListener('click', () => {
+        clearTimeout(timer);
+        try { confirmAction(); } catch (e) { console.error(e); }
+        toast.classList.remove('show');
+        toast.addEventListener('transitionend', () => toast.remove(), { once: true });
+    });
+}
+
 document.addEventListener('DOMContentLoaded', () => {
-    // load state immediately to populate fields before listeners are attached
+    tutorialManagerInstance = new TutorialManager();
+    
     loadState();
     
     document.querySelectorAll('[data-clear-card]').forEach(btn => {
-        btn.addEventListener('click', (e) => {
-            const idx = parseInt(btn.getAttribute('data-clear-card'), 10);
-            clearCard(idx);
-            // Show image-specific toast to indicate only the image was removed
+        btn.addEventListener('click', () => {
+            clearCard();
             showToast('Card image removed', 'success');
         });
     });
 
     const clearAllBtn = document.getElementById('clearAllBtn');
-    if (clearAllBtn) clearAllBtn.addEventListener('click', () => {
-        clearAll(); // Removed the confirm dialog, using toast instead
-    });
+    if (clearAllBtn) {
+        clearAllBtn.addEventListener('click', (e) => {
+            e.preventDefault();
+            if (topbarPurgeAwaitingConfirm) {
+                // reset UI state
+                clearTimeout(topbarPurgeTimer);
+                topbarPurgeTimer = null;
+                topbarPurgeAwaitingConfirm = false;
+                clearAllBtn.classList.remove('confirm');
+                // perform full purge without showing the extra topbar toast (use the same behavior as purgeBtn)
+                clearAll();
+                // restore original button content & title immediately after purge
+                const prevInner = clearAllBtn.getAttribute('data-prev-inner') || '<i class="fa-solid fa-broom"></i>';
+                clearAllBtn.innerHTML = prevInner;
+                clearAllBtn.title = clearAllBtn.getAttribute('data-prev-title') || 'Clear all inputs';
+                clearAllBtn.removeAttribute('data-prev-inner');
+                clearAllBtn.removeAttribute('data-prev-title');
+                return;
+            }
+            // Enter confirm mode: change appearance and label, start timeout
+            topbarPurgeAwaitingConfirm = true;
+            clearAllBtn.classList.add('confirm');
+            // swap icon to confirm text for clarity
+            clearAllBtn.setAttribute('data-prev-title', clearAllBtn.title || '');
+            clearAllBtn.title = 'Confirm purge';
+            const prevInner = clearAllBtn.innerHTML;
+            clearAllBtn.setAttribute('data-prev-inner', prevInner);
+            clearAllBtn.innerHTML = 'Confirm?';
+            // Do not use entering animation class; keep it a simple state change
+
+            // if user does not confirm within timeout, reset the button
+            topbarPurgeTimer = setTimeout(() => {
+                topbarPurgeAwaitingConfirm = false;
+                if (topbarPurgeTimer) { clearTimeout(topbarPurgeTimer); topbarPurgeTimer = null; }
+                clearAllBtn.classList.remove('confirm');
+                const prev = clearAllBtn.getAttribute('data-prev-inner') || '<i class="fa-solid fa-broom"></i>';
+                clearAllBtn.innerHTML = prev;
+                clearAllBtn.title = clearAllBtn.getAttribute('data-prev-title') || 'Clear all inputs';
+                // cleanup stored attributes
+                clearAllBtn.removeAttribute('data-prev-inner');
+                clearAllBtn.removeAttribute('data-prev-title');
+            }, TOPBAR_PURGE_CONFIRM_MS);
+        });
+    }
+
+    // cancel the topbar confirm if user clicks anywhere else on the page
+    document.addEventListener('click', (e) => {
+        const btn = document.getElementById('clearAllBtn');
+        if (!topbarPurgeAwaitingConfirm || !btn) return;
+        // if click occurred on the button itself, let its handler deal with it
+        if (e.target === btn || btn.contains(e.target)) return;
+        // otherwise cancel confirm state
+        topbarPurgeAwaitingConfirm = false;
+        if (topbarPurgeTimer) { clearTimeout(topbarPurgeTimer); topbarPurgeTimer = null; }
+        btn.classList.remove('confirm', 'entering');
+        const prevInner = btn.getAttribute('data-prev-inner') || '<i class="fa-solid fa-broom"></i>';
+        btn.innerHTML = prevInner;
+        btn.title = btn.getAttribute('data-prev-title') || 'Clear all inputs';
+        // cleanup stored attributes
+        btn.removeAttribute('data-prev-inner');
+        btn.removeAttribute('data-prev-title');
+    }, { capture: true });
 
     const helpPanel = document.getElementById('helpPanel');
     const toggleHelpBtn = document.getElementById('toggleHelpBtn');
@@ -1075,6 +1249,22 @@ document.addEventListener('DOMContentLoaded', () => {
         const collapsed = !helpPanel.classList.contains('collapsed');
         setHelpState(collapsed);
       });
+      
+      // Add restart tutorial button logic
+      const restartBtn = document.getElementById('restartTutorialBtn');
+      if (restartBtn) {
+          restartBtn.addEventListener('click', (e) => {
+              e.stopPropagation();
+              if (tutorialManagerInstance) {
+                   // Ensure tutorial is considered not done so it runs
+                   localStorage.removeItem(tutorialManagerInstance.STORAGE_KEY);
+                   tutorialManagerInstance.isDone = false;
+                   tutorialManagerInstance.startTour();
+              }
+              // Collapse help panel after clicking restart
+              setHelpState(true);
+          });
+      }
     }
 
     // initialize resources panel toggle
@@ -1117,7 +1307,7 @@ document.addEventListener('DOMContentLoaded', () => {
       });
     }
 
-    updateLengthWarning(1);
+    updateLengthWarning();
 
     // Setup clear buttons for text inputs
     document.querySelectorAll('.clear-input-btn').forEach(btn => {
@@ -1135,10 +1325,10 @@ document.addEventListener('DOMContentLoaded', () => {
     });
 
     // input change listeners for saving state and rendering
-    if (charNameInput1) charNameInput1.addEventListener('input', () => { updateLengthWarning(1); scheduleRender(); saveState(); });
-    if (seriesTitleInput1) seriesTitleInput1.addEventListener('input', () => { updateLengthWarning(1); scheduleRender(); saveState(); });
+    if (charNameInput1) charNameInput1.addEventListener('input', () => { updateLengthWarning(); scheduleRender(); saveState(); });
+    if (seriesTitleInput1) seriesTitleInput1.addEventListener('input', () => { updateLengthWarning(); scheduleRender(); saveState(); });
     if (printNumberInput1) printNumberInput1.addEventListener('input', () => { scheduleRender(); saveState(); });
-    if (imageUploadInput1) imageUploadInput1.addEventListener('change', (e) => { handleImageUpload(e, 1); scheduleRender(); });
+    if (imageUploadInput1) imageUploadInput1.addEventListener('change', (e) => { handleImageUpload(e); scheduleRender(); });
 
     if (customColorInput1) {
       customColorInput1.addEventListener('input', () => {
@@ -1159,6 +1349,15 @@ document.addEventListener('DOMContentLoaded', () => {
       });
     }
 
+    // Wire up topbar download button (new)
+    const topbarDownloadBtn = document.getElementById('topbarDownloadBtn');
+    if (topbarDownloadBtn) {
+        topbarDownloadBtn.addEventListener('click', (e) => {
+            e.preventDefault();
+            downloadPNG();
+        });
+    }
+
     // Wire up Send to Discord button
     const sendDiscordBtn = document.getElementById('sendDiscordBtn');
     if (sendDiscordBtn) {
@@ -1177,7 +1376,6 @@ document.addEventListener('DOMContentLoaded', () => {
         sendToDiscord(payload);
       });
     }
-
 });
 
 updateCanvasDimensions();
