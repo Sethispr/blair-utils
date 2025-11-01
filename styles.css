@@ -76,10 +76,9 @@ body {
   padding: 8px;
 }
 
-/* Radio labels text & spacing refinement (short labels) */
+/* Radio labels text and spacing refinement (short labels) */
 .radio-group label { padding: 8px 10px; }
 
-/* Row inside file input area to accommodate status + clear button */
 .card-controls-row {
   display: flex;
   align-items: center;
@@ -101,6 +100,9 @@ body {
 /* Ensure the topbar buttons collapse neatly on very small screens */
 @media (max-width: 520px) {
   .top-actions { gap: 6px; }
+  .top-actions .btn-ghost {
+    padding: 10px 10px; /* Make icon-only buttons squarer/larger touch targets */
+  }
   #downloadBtn { font-size: 13px; padding: 8px 10px; }
   .title { font-size: 16px; }
 }
@@ -161,11 +163,16 @@ body {
 /* Make top actions larger on touch devices */
 @media (max-width: 520px) {
   .btn { font-size: 15px; padding: 10px 12px; }
+  /* Make all small buttons better touch targets on mobile */
+  .btn.small { 
+    padding: 8px 10px;
+    font-size: 13px;
+  }
   .help-panel { font-size: 14px; padding: 12px; }
 }
 
 /* Collapsed help styles */
-.help-panel .btn.small { padding: 6px 8px; }
+.help-panel .btn.small { padding: 8px 10px; }
 
 /* Row inside file input area to accommodate status + clear button */
 .card-controls-row {
@@ -216,6 +223,26 @@ body {
   background: linear-gradient(180deg, #16171a, #0f1012);
   box-shadow: 0 10px 30px rgba(2,6,23,0.72);
 }
+
+.btn.confirm {
+  transition: background .18s ease, color .18s ease, transform .12s ease;
+  /* Replace border with an inset glow so the button doesn't change layout when toggling confirm state */
+  background: linear-gradient(180deg, rgba(255,95,90,0.16), rgba(255,95,90,0.06));
+  /* remove explicit border to avoid layout shift */
+  border: none;
+  color: #fff;
+  box-shadow:
+    inset 0 0 0 1px rgba(255,95,90,0.18), /* subtle inner rim */
+    0 8px 26px rgba(255,95,90,0.08);
+}
+.btn.confirm:hover {
+  background: linear-gradient(180deg, rgba(255,95,90,0.22), rgba(255,95,90,0.08));
+  box-shadow:
+    inset 0 0 0 1px rgba(255,95,90,0.28),
+    0 12px 36px rgba(255,95,90,0.12);
+}
+/* subtle shrinking effect when entering confirm state */
+.btn.confirm.entering { transform: scale(0.98); }
 
 .controls {
   margin-top: 24px; 
@@ -771,7 +798,7 @@ canvas {
 }
 
 /* Collapsed help styles */
-.help-panel .btn.small { padding: 6px 8px; }
+.help-panel .btn.small { padding: 8px 10px; }
 
 /* hide native file selector visually but keep it accessible to screen readers */
 .file-row input[type="file"] {
@@ -899,6 +926,10 @@ canvas {
     margin-bottom: 12px;
     padding-top: 0; 
     border-top: none;
+    /* Ensure h4 titles align consistently with h3 using flexbox */
+    display: flex;
+    align-items: center;
+    gap: 8px;
 }
 .card-input-set h4:nth-of-type(1) { /* Remove separator for the very first h4 (Step 2: Select Color) */
     border-top: none;
@@ -1018,5 +1049,202 @@ canvas {
 }
 /* small tweak for mobile spacing */
 @media (max-width: 520px) {
-  .form-actions { gap: 8px; }
+  .form-actions { 
+    gap: 8px; 
+    flex-wrap: wrap; /* Added to stack buttons */
+  }
+  .form-actions .btn {
+    flex-grow: 1;
+    flex-basis: 100%;
+    margin-bottom: 4px; /* Space between stacked buttons */
+  }
+}
+
+/* --- Tutorial Styles (Shadcn/UI/dark mode esque) --- */
+#tutorial-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    z-index: 10000;
+    pointer-events: none; /* Initially allow clicks to pass through */
+    overflow: hidden;
+}
+
+#tutorial-overlay.active {
+    pointer-events: all; /* When active, capture clicks */
+}
+
+#tutorial-backdrop {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.75); /* Dark semi-transparent overlay */
+    backdrop-filter: blur(2px);
+    pointer-events: all; /* Backdrop captures clicks for 'click anywhere to next' */
+    transition: opacity 0.3s ease;
+    opacity: 1; 
+}
+
+/* Highlighted element circle/box */
+.tutorial-highlight {
+    position: fixed; /* Use fixed positioning relative to viewport */
+    z-index: 10001; /* Above backdrop */
+    pointer-events: none;
+    background: transparent;
+    border: 3px solid var(--accent);
+    border-radius: 12px;
+    transition: all 0.4s ease-in-out;
+    /* Changed box-shadow: Removed massive spread shadow for cutout */
+    box-shadow: 0 0 20px rgba(127,140,255,0.8);
+    /* For smoother animation */
+    will-change: transform, width, height, top, left, border-radius; 
+    /* Ensures the highlight area is cut out from the overlay */
+    clip-path: none; /* Removed the clip path for 'full border' effect */
+}
+
+/* Simple popover styling */
+.tutorial-popover {
+    position: fixed; /* Use fixed positioning relative to viewport */
+    z-index: 10002;
+    background: #1e1e1e;
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    border-radius: 12px;
+    padding: 16px;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5), 0 0 0 1px rgba(255, 255, 255, 0.05);
+    max-width: 300px;
+    min-width: 250px;
+    pointer-events: all; /* Popover itself needs to be clickable */
+    opacity: 0;
+    transform: translate(0, 10px);
+    transition: opacity 0.3s ease, transform 0.3s ease;
+    box-sizing: border-box; /* ensure padding is included in width */
+    word-wrap: break-word;
+    overflow: visible;
+}
+
+.tutorial-popover.visible {
+    opacity: 1;
+    transform: translate(0, 0);
+}
+
+.popover-title {
+    font: 700 16px/1.2 "Sora", sans-serif;
+    color: var(--fg);
+    margin-bottom: 8px;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+    padding-bottom: 8px;
+}
+
+.popover-body {
+    font-size: 14px;
+    color: var(--muted);
+    margin-bottom: 12px;
+}
+
+.popover-footer {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding-top: 8px;
+    border-top: 1px solid rgba(255, 255, 255, 0.05);
+    gap: 12px; /* Add gap between indicator and actions group */
+}
+
+.popover-actions-group {
+    display: flex;
+    gap: 8px;
+}
+
+.popover-footer .btn {
+    padding: 6px 10px;
+}
+
+.step-indicator {
+    font-size: 13px;
+    font-weight: 500;
+    color: var(--accent);
+    flex-shrink: 0; /* Prevents indicator from shrinking */
+}
+
+/* Adjustments for the moved download button */
+.form-actions #downloadBtn {
+    /* Ensure it uses the default button style as requested */
+    background: linear-gradient(180deg, #111215, #0b0b0b); 
+    border: 1px solid rgba(255,255,255,0.04);
+}
+.form-actions #downloadBtn:hover {
+    background: linear-gradient(180deg, #16171a, #0f1012);
+}
+
+#tutorial-next-btn {
+    background: var(--accent);
+    color: var(--bg);
+    font-weight: 700;
+    border: none;
+}
+
+#tutorial-next-btn:hover {
+    background: #6a79ff;
+    box-shadow: 0 4px 12px rgba(127,140,255,0.4);
+}
+
+@media (max-width: 600px) {
+    .tutorial-popover {
+        max-width: 92%;
+        min-width: unset;
+        left: 50% !important; 
+        transform: translate(-50%, 0);
+        padding: 12px;
+        font-size: 14px;
+        max-height: calc(100vh - 80px);
+        overflow: hidden;
+    }
+    
+    .tutorial-popover.mobile-bottom { 
+        left: 50% !important;
+        transform: translate(-50%, 0);
+    }
+    
+    .popover-body {
+        font-size: 13px;
+        color: var(--muted);
+        margin-bottom: 12px;
+        max-height: calc(100vh - 200px);p
+        overflow: auto;
+        -webkit-overflow-scrolling: touch;
+        word-break: break-word;
+        white-space: normal;
+    }
+
+    .popover-footer {
+        flex-wrap: wrap;
+        gap: 8px;
+    }
+    .popover-actions-group {
+        width: 100%;
+        justify-content: space-between;
+    }
+    .step-indicator {
+        order: 1;
+        flex-basis: 100%;
+        text-align: center;
+        margin-bottom: 4px;
+    }
+    #tutorial-skip-btn {
+        order: 1;
+        flex-grow: 1;
+        text-align: center;
+    }
+    #tutorial-prev-btn { 
+        order: 2
+        flex-grow: 1;
+    }
+    #tutorial-next-btn {
+        order: 3;
+        flex-grow: 1;
+    }
 }
