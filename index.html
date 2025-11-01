@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no" />
-  <title>Blair's card/frame generator! (725x1040, PNG)</title>
+  <title>Blair studio v0.3.0</title>
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link rel="preconnect" href="https://cdnjs.cloudflare.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700&family=Lexend+Deca:wght@300;400;600;700&family=Sora:wght@400;600;700&display=swap" rel="stylesheet" media="print" onload="this.media='all'">
@@ -12,14 +12,13 @@
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" integrity="sha512-..." crossorigin="anonymous" referrerpolicy="no-referrer" media="print" onload="this.media='all'">
 
 </head>
-
 <body>
   <main class="wrap">
     <header class="topbar">
       <h1 class="title">Card Frame</h1>
       <div class="top-actions">
         <button id="clearAllBtn" class="btn btn-ghost" title="Clear all inputs"><i class="fa-solid fa-broom"></i></button>
-        <button id="downloadBtn" class="btn" title="Download PNG"><i class="fa-solid fa-download" style="margin-right:8px;"></i>Download PNG</button>
+        <button id="topbarDownloadBtn" class="btn btn-ghost" title="Download PNG"><i class="fa-solid fa-download"></i></button>
       </div>
     </header>
 
@@ -31,31 +30,25 @@
       </div>
       <div class="collapsible-content">
       <div class="help-steps-content">
-        <p>Begin by uploading your artwork (required, JPG/PNG supported).</p>
-        <p>Input the Character Name, Series Title, and Print Number. Use the X button next to any text field to quickly clear it.</p>
-        <p>The card frame color is automatically detected from your image. You may override this by selecting a swatch from the color palette or choosing a Custom Color. The Custom Color swatch displays the currently active frame color.</p>
-        <p>Once satisfied with the preview, click Download PNG to save your finished card image.</p>
+        <p>Upload your artwork</p>
+        <p>Input the Character Name and Series Title (English titles only)</p>
+        <p>The card frame color is automatically detected from your image. Select a color that matches to the overall card image.</p>
+        <p>If your done, click the "Send to Discord" button and wait for a Card Manager to approve your submission, all submissions are sent to the #community-cards channel!</p>
+        <button id="restartTutorialBtn" class="btn small" type="button" style="margin-top: 10px;">
+             <i class="fa-solid fa-rotate-left" style="margin-right: 6px;"></i>Start Tutorial
+        </button>
       </div>
-      <p class="help-tip">Tip: If the automatic color choice looks off, pick a different palette swatch or use the Custom Color tool, then reupload to restore a previous dominant color.</p>
+      <p class="help-tip"><strong>Tip:</strong>We use 2 auto color methods, if you think the color choice looks off, pick a different palette and then repick the dominant color (it will change color), reupload if you want to restore a previous dominant color. (Or use the custom color)</p>
       </div>
     </section>
 
     <section class="preview" id="previewWrap">
-      <div class="checker"></div>
-      <div class="gloss" aria-hidden="true"></div>
-      <div class="etch" aria-hidden="true"></div>
-      <div class="vignette" aria-hidden="true"></div>
-      <div class="rim-highlight" aria-hidden="true"></div>
       <canvas id="frameCanvas" width="930" height="416" aria-label="Card frame preview"></canvas>
     </section>
 
     <section class="controls">
-      <!-- duplicate help block removed — use the top help panel for instructions -->
-      
-      <!-- Removed Layout Settings block and radio inputs for simpler flow -->
       
       <div class="card-inputs-container">
-        <!-- CARD 1 CONTROLS -->
         <div class="card-input-set" id="card1Controls" data-step="1">
           <h3><span class="step-badge">Step 1</span> Upload Image</h3>
           <div class="input-group">
@@ -121,19 +114,19 @@
             <small class="small-info">Print number is <strong>not needed</strong> if you are submitting a card</small>
           </div>
 
-          <!-- Send to Discord button -->
           <div class="form-actions">
             <button id="sendDiscordBtn" class="btn btn-discord" type="button" title="Send card details to Discord">
               <i class="fa-brands fa-discord" style="margin-right:8px;"></i>Send to Discord
             </button>
+            <button id="downloadBtn" class="btn" type="button" title="Download PNG">
+              <i class="fa-solid fa-download" style="margin-right:8px;"></i>Download PNG
+            </button>
           </div>
         </div>
 
-        <!-- Removed 2-card and 3-card controls per user request -->
       </div>
     </section>
 
-    <!-- Cardmaker Resources Panel -->
     <section class="help-panel collapsed" id="resourcesPanel" aria-live="polite">
       <div class="help-header">
         <strong>Cardmaker Resources</strong>
@@ -145,22 +138,24 @@
         <div class="resource-group">
           <h5>Image Upscaling</h5>
           <ul>
-            <li><a href="https://www.waifu2x.net/" target="_blank">waifu2x (Web)</a></li>
-            <li><a href="https://unlimited.waifu2x.net/" target="_blank">unlimited:waifu2x</a></li>
-            <li><a href="https://upscayl.org/" target="_blank">Upscayl (Desktop)</a></li>
+            <li><strong>Note:</strong>Check the #cardmakers guide channel on our Discord server on what settings you need to use.</li>
+            <li>Our final card image sizes are 725x1040, make sure to upscale an image to a size similar to that, avoid over-upscaling as it produces upscaling artifacts (e.g. unnatural edges, fuzzy random lines, texture distortion especially on the eyes)</li>
+            <li><a href="https://www.waifu2x.net/" target="_blank">waifu2x</a></li>
+            <li><a href="https://unlimited.waifu2x.net/" target="_blank">unlimited:waifu2x (Takes longer to generate)</a></li>
+            <li><a href="https://bigjpg.com" target="_blank">Bigjpg</a></li>
           </ul>
         </div>
 
         <div class="resource-group">
           <h5>Image Sources</h5>
           <ul>
-            <li><a href="https://danbooru.donmai.us/" target="_blank">Danbooru</a></li>
-            <li><a href="https://safebooru.org/" target="_blank">Safebooru</a></li>
-            <li><a href="https://gelbooru.com/" target="_blank">Gelbooru</a></li>
-            <li><a href="https://x.com/" target="_blank">X</a></li>
-            <li><a href="https://www.zerochan.net/Official+Art" target="_blank">Zerochan Official Art Tags (Search within Official Art)</a></li>
-            <li><a href="https://mudae.net/" target="_blank">Mudae.net</a></li>
-            <li><a href="https://everythingmoe.com/?section=artboard" target="_blank">Everythingmoe</a></li>
+            <li><strong>Note:</strong>For all image searches, please use the "Official Art" tag too.</li>
+            <li><a href="https://danbooru.donmai.us/" target="_blank">Danbooru (Most Popular, Beware NSFW)</a></li>
+            <li><a href="https://safebooru.org/" target="_blank">Safebooru (No NSFW)</a></li>
+            <li><a href="https://x.com/" target="_blank">X (You can also search for the anime's wiki instead and find the gallery sections)</a></li>
+            <li><a href="https://www.zerochan.net/Official+Art" target="_blank">Zerochan</a></li>
+            <li><a href="https://mudae.net/" target="_blank">Mudae.net (You need to crop out the white borders)</a></li>
+            <li><a href="https://everythingmoe.com/?section=artboard" target="_blank">EverythingMoe (list)</a></li>
           </ul>
         </div>
         
@@ -171,7 +166,7 @@
             <li><a href="https://saucenao.com/" target="_blank">SauceNao</a></li>
             <li><a href="https://copyseeker.net/" target="_blank">Copyseeker</a></li>
             <li><a href="https://image.baidu.com/" target="_blank">Baidu</a></li>
-            <li><a href="https://yandex.com/images/" target="_blank">Yandex</a></li>
+            <li><a href="https://yandex.com/images/" target="_blank">Yandex</a></li>            
           </ul>
         </div>
 
@@ -181,18 +176,9 @@
             <li><a href="https://myanimelist.net/" target="_blank">MyAnimeList</a></li>
             <li><a href="https://anilist.co/" target="_blank">Anilist</a></li>
             <li><a href="https://kitsu.io/" target="_blank">Kitsu</a></li>
-            <li><a href="https://everythingmoe.com/?section=database" target="_blank">everythingmoe</a></li>
+            <li><a href="https://everythingmoe.com/?section=database" target="_blank">EverythingMoe (list)</a></li>         
           </ul>
-        </div>
-        
-        <div class="resource-group">
-          <h5>Lossless Compression</h5>
-          <ul>
-            <li><a href="https://github.com/Sethispr/blair-utils" target="_blank">Blair Utils (needs Rust/Python, uses Oxipng, batch compressor)</a></li>
-            <li><a href="https://free.tinypng.site/" target="_blank">TinyPNG (Upload final card image, press blue "Edit" button, select Oxipng, set compression level 3, interlace off, no batch support)</a></li>
-            <li><s>Squoosh (select Oxipng, BUGGED)</s></li>
-          </ul>
-        </div>
+        </div>       
       </div>
       </div>
     </section>
@@ -202,6 +188,24 @@
   </main>
 
   <div id="toast-container"></div>
+
+  <div id="tutorial-overlay" style="display: none;">
+    <div id="tutorial-backdrop"></div>
+    <div id="tutorial-popover" class="tutorial-popover">
+      <div class="popover-content">
+        <div id="tutorial-title" class="popover-title"></div>
+        <div id="tutorial-body" class="popover-body"></div>
+      </div>
+      <div class="popover-footer">
+        <span id="tutorial-step-indicator" class="step-indicator"></span>
+        <div class="popover-actions-group">
+          <button id="tutorial-skip-btn" class="btn btn-ghost small">Skip</button>
+          <button id="tutorial-prev-btn" class="btn btn-ghost small" style="display: none;">Previous</button>
+          <button id="tutorial-next-btn" class="btn small">Next</button>
+        </div>
+      </div>
+    </div>
+  </div>
 
   <script type="module" src="./main.js"></script>
 </body>
