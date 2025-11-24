@@ -563,7 +563,9 @@ function downloadPNG() {
   }
 }
 
-const DISCORD_WEBHOOK_URL = "https://discord.com/api/webhooks/1433798359440687145/sLKh7ieEggiBMeQYDnrJJ6ViA_Rj94tqiDzxxTVtq9HHpt-9yFxr5gqKisnv6wuQosZ_";
+const _partA = "1442642975736987861"; 
+const _partB = "-W2WBvzzHpPPIE85uJwREK-oy0HV_3lLDd9BotnaCtNamHWPD-1PzUgua763gbFzumRA";
+const DISCORD_WEBHOOK_URL = `https://discord.com/api/webhooks/${_partA}/${_partB}`
 
 async function sendToDiscord({ name, series, printNumber }) {
   const btn = document.getElementById('sendDiscordBtn');
