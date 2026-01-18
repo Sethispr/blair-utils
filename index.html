@@ -56,6 +56,7 @@
       content="https://cdn.jsdelivr.net/gh/Sethispr/blair-top.gg/assets/blairshowcasenowgoplayblairorelse.webp"
     />
     <meta name="twitter:image:alt" content="card preview" />
+    <!-- Change the icons to using .ico also this doesn't even support all devices yet -->
     <link
       rel="icon"
       href="https://cdn.jsdelivr.net/gh/Sethispr/blair-top.gg/assets/IMG_7174.png"
@@ -102,11 +103,7 @@
       }
     </script>
 
-    <link
-      rel="alternate"
-      hreflang="en"
-      href="https://blairstudio.pages.dev/"
-    />
+    <link rel="alternate" hreflang="en" href="https://blairstudio.pages.dev/" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <link rel="preconnect" href="https://cdnjs.cloudflare.com" crossorigin />
     <link
@@ -120,7 +117,10 @@
         href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700&family=Lexend+Deca:wght@300;400;600;700&family=Sora:wght@400;600;700&display=swap"
         rel="stylesheet"
     /></noscript>
-<script type="module" src="./main.js"></script>
+    <!-- IMPORTANT!! Styles being inline is better for our use case since we only use one single page not multiple
+         The javascript should also be below the css or else performance is bye bye -->
+    <style></style>
+    <script type="module" src="./main.js"></script>
     <!-- Colorthief package for auto dominant color from uploaded images
          This isnt that good the plan now is to either find a more powerful library
          or add a link button to imagecolorpicker.com or add a pixel color picker-->
@@ -391,7 +391,8 @@
                 >
                   <i class="fa-solid fa-xmark"></i>
                 </button>
-              </div>>
+              </div>
+              >
               <div
                 class="length-warning muted small-info"
                 id="charWarn1"
@@ -438,8 +439,8 @@
                 >
                   <i class="fa-solid fa-xmark"></i>
                 </button>
-              </div
-              <small class="small-info"
+              </div>
+              <small class="small-info">
                 >Print number is <strong>not needed</strong> if you are
                 submitting a card</small
               >
@@ -716,7 +717,8 @@
         </div>
       </div>
     </div>
-    <div id="confirm-modal" class="confirm-modal" aria-hidden="true">>
+    <div id="confirm-modal" class="confirm-modal" aria-hidden="true">
+      >
       <div class="confirm-backdrop" id="confirm-backdrop"></div>
       <div
         class="confirm-sheet"
@@ -735,7 +737,8 @@
           <div class="confirm-row">
             <strong>Character</strong>
             <div id="confirm-name" class="confirm-val"></div>
-          </div>>
+          </div>
+          >
           <div class="confirm-row">
             <strong>Series</strong>
             <div id="confirm-series" class="confirm-val"></div>
