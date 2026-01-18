@@ -1,5 +1,5 @@
 <div class="blair-container"><img
-    src="https://raw.githubusercontent.com/Sethispr/blair/main/src/assets/IMG_7148.png"
+    src="https://raw.githubusercontent.com/Sethispr/blair-utils/main/src/IMG_7369.webp"
     alt="blair cards preview banner"
     class="blair-container__image"
   /><div class="blair-container__header">
