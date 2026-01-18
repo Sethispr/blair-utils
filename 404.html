@@ -1,0 +1,223 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover" />
+  <title>404 Not Found..</title>
+  <meta name="robots" content="noindex" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700&family=Sora:wght@600;700&display=swap" rel="stylesheet">
+  <style>
+    :root{
+      --bg:#0b0b0b;
+      --card:#0f1113;
+      --muted:#9aa0a6;
+      --accent:#6a79ff;
+      --glass:rgba(255,255,255,0.04);
+      --radius:14px;
+      --gap:14px;
+      --maxwidth:980px;
+    }
+    *{box-sizing:border-box}
+    html,body{height:100%}
+    body{
+      margin:0;
+      font-family:Inter,system-ui,-apple-system,"Segoe UI",Roboto,Arial,sans-serif;
+      background:linear-gradient(180deg,var(--bg),#09090a);
+      color:#fff;
+      -webkit-font-smoothing:antialiased;-moz-osx-font-smoothing:grayscale;
+      display:flex;align-items:center;justify-content:center;padding:1px;
+      min-height:100vh;
+    }
+
+    .container {
+      width:100%;
+      max-width:var(--maxwidth);
+      display:flex;
+      flex-direction:column;
+      gap:var(--gap);
+      align-items:stretch;
+    }
+
+    .card {
+      border-radius:12px;
+      background:linear-gradient(180deg,rgba(255,255,255,0.02),rgba(0,0,0,0.06));
+      border:1px solid var(--glass);
+      box-shadow:0 18px 46px rgba(2,6,23,0.6);
+      padding:18px;
+      display:flex;
+      flex-direction:column;
+      gap:12px;
+    }
+
+    .hero {
+      display:flex;
+      flex-direction:column;
+      gap:12px;
+      padding:18px;
+      border-radius:var(--radius);
+      background:transparent;
+      border:none;
+      box-shadow:none;
+    }
+
+    .eyebrow{
+      display:inline-flex;align-items:center;gap:10px;
+      font:600 13px/1 "Sora",sans-serif;color:var(--accent);
+    }
+    .eyebrow .dot{width:8px;height:8px;border-radius:50%;background:linear-gradient(180deg,var(--accent),#8fa0ff);display:inline-block}
+
+    h1{
+      margin:0;
+      font:700 28px/1.02 "Sora",sans-serif;
+      letter-spacing:-0.02em;
+      color:#fff;
+    }
+
+    p.lead{margin:0;color:var(--muted);font-size:15px;line-height:1.5}
+
+    /* Actions: mobile-first full-width stacked buttons */
+    .actions { display:flex;flex-direction:column;gap:10px;margin-top:6px; }
+    .btn{
+      display:inline-flex;align-items:center;gap:12px;justify-content:center;
+      padding:14px 16px;border-radius:12px;border:1px solid rgba(255,255,255,0.04);
+      background:linear-gradient(180deg,rgba(255,255,255,0.02),rgba(0,0,0,0.06));
+      color:inherit;font-weight:700;text-decoration:none;cursor:pointer;
+      font-size:16px;
+      min-height:52px;
+    }
+    .btn:active{transform:translateY(1px)}
+    .btn.primary{
+      background:linear-gradient(180deg,var(--accent),#5b68f0);color:var(--bg);border:none;
+      box-shadow:0 12px 34px rgba(106,121,255,0.16);
+    }
+    .btn.ghost{
+      background:transparent;border:1px solid rgba(255,255,255,0.06);color:var(--muted);
+    }
+
+    /* Quick links row */
+    .quick-links {
+      display:flex;gap:12px;flex-wrap:nowrap;overflow:auto;padding-top:6px;
+      -webkit-overflow-scrolling:touch;
+    }
+    .quick-links a{white-space:nowrap;color:var(--accent);text-decoration:none;font-weight:600;flex:0 0 auto}
+
+    .visual-card {
+      margin-top:6px;
+      padding:14px;border-radius:12px;background:linear-gradient(180deg,#0d0f10,#08090a);
+      border:1px solid rgba(255,255,255,0.02);
+      display:flex;flex-direction:column;gap:12px;align-items:stretch;
+    }
+    .scene-visual{
+      min-height:160px;border-radius:12px;display:flex;align-items:center;justify-content:center;
+      background:linear-gradient(180deg,rgba(106,121,255,0.06),transparent);
+      border:1px dashed rgba(106,121,255,0.06);position:relative;overflow:hidden;
+    }
+    .bigcode{font:700 64px/1 "Sora",sans-serif;color:rgba(255,255,255,0.06);position:absolute;top:12px;left:12px;user-select:none}
+
+    .meta { display:flex;flex-direction:column;gap:8px;color:var(--muted);font-size:13px }
+    .meta .links { display:flex;flex-wrap:wrap;gap:10px }
+
+    .tip-row{display:flex;align-items:center;justify-content:space-between;gap:12px}
+    .tip-text{font-weight:700}
+    .tip-hint{color:var(--muted);font-size:13px}
+
+    /* The back home icon button */
+    .home-fab{
+      position:fixed;
+      right:18px;
+      bottom:18px;
+      z-index:12000;
+      width:64px;height:64px;border-radius:16px;
+      background:linear-gradient(180deg,rgba(106,121,255,0.16),rgba(106,121,255,0.06));
+      display:grid;place-items:center;color:var(--accent);text-decoration:none;
+      box-shadow:0 12px 34px rgba(106,121,255,0.08);
+      border:1px solid rgba(255,255,255,0.04);
+    }
+    .home-fab svg{width:22px;height:22px;display:block}
+
+    footer{margin-top:6px;color:var(--muted);font-size:13px;display:flex;justify-content:space-between;gap:12px;align-items:center;flex-wrap:wrap}
+
+    @media (min-width:880px){
+      body{padding:28px}
+      .container{flex-direction:row;gap:28px;align-items:center;justify-content:center}
+      .card { flex:1 1 60%; padding:24px; max-width: 780px; }
+      .visual-card { flex:0 0 360px; margin-top:0 }
+      .actions{flex-direction:row}
+      .actions .btn{flex:1;min-width:0}
+      .quick-links{overflow:visible}
+      .scene-visual{min-height:240px}
+      .bigcode{font-size:96px}
+      .home-fab{right:36px;bottom:36px}
+    }
+
+    @media (max-width:360px){
+      .btn{padding:12px 14px;font-size:15px;min-height:48px}
+      .home-fab{width:56px;height:56px;right:12px;bottom:12px}
+    }
+
+    .btn:focus{outline:3px solid rgba(111,119,255,0.16);outline-offset:3px;border-radius:12px}
+    a{color:inherit}
+  </style>
+</head>
+<body>
+  <main class="container" role="main" aria-labelledby="title">
+    <section class="card" aria-hidden="false">
+      <div class="hero" aria-labelledby="title">
+        <div class="eyebrow"><span class="dot" aria-hidden="true"></span>Page not found</div>
+        <h1 id="title">We couldn't find that page</h1>
+        <p class="lead">Looks like the link is broken or the page was removed. You can return home or open the card generator to continue.</p>
+
+        <div class="actions" role="group" aria-label="Helpful actions">
+          <a class="btn primary" href="https://blairstudio.pages.dev/" title="Open card generator">Open Card Generator</a>
+          <a class="btn ghost" href="https://sethispr.github.io/blair/" title="Docs">Docs</a>
+        </div>
+
+        <div class="meta" aria-hidden="false">
+          <div><strong>Quick links</strong></div>
+          <nav class="quick-links" aria-label="Quick links">
+            <a href="https://discord.com/channels/1431529966868369473/1431609129952083998" target="_blank" rel="noopener noreferrer">Content (Discord)</a>
+            <a href="https://discord.com/channels/1431529966868369473/1431529968419995655" target="_blank" rel="noopener noreferrer">Resources (Discord)</a>
+            <a href="https://sethispr.github.io/blair/" target="_blank" rel="noopener noreferrer">Docs</a>
+          </nav>
+        </div>
+
+        <footer>
+          <span>&copy; 2026 blairstudio</span>
+          <span class="hint">Need help? <a class="link" href="https://discord.com/channels/1431529966868369473/1431609129952083998" target="_blank" rel="noopener noreferrer">Contact on Discord</a></span>
+        </footer>
+      </div>
+    </section>
+
+    <aside class="visual-card" aria-hidden="true">
+      <div class="scene-visual" role="img" aria-label="404 visual">
+        <div class="bigcode">404</div>
+      </div>
+
+      <div class="tip-row" style="gap:12px">
+        <div>
+          <div class="tip-text">Tip</div>
+          <div class="tip-hint">Everything is saved except the frame color and the image uploaded.</div>
+        </div>
+        <div style="display:flex;align-items:center;gap:10px">
+          <a class="btn ghost" href="https://sethispr.github.io/blair/" title="Docs" style="min-width:44px;padding:10px 12px">Docs</a>
+        </div>
+      </div>
+    </aside>
+  </main>
+
+  <a class="home-fab" href="https://blairstudio.pages.dev/" title="Home" aria-label="Home (back to generator)">
+    <svg viewBox="0 0 24 24" fill="none" aria-hidden="true" focusable="false" xmlns="http://www.w3.org/2000/svg">
+      <path d="M3 10.5L12 4l9 6.5V20a1 1 0 0 1-1 1h-5v-6H9v6H4a1 1 0 0 1-1-1V10.5z" fill="currentColor"/>
+    </svg>
+  </a>
+
+  <script>
+    (function(){
+      try { document.querySelector('footer span').textContent = '© 2026 blairstudio'; } catch(e){}
+      const fab = document.querySelector('.home-fab');
+      if(fab){ fab.setAttribute('tabindex', '0'); fab.addEventListener('keydown', (e)=>{ if(e.key==='Enter' || e.key===' ') fab.click(); }); }
+    })();
+  </script>
+</body>
+</html>
