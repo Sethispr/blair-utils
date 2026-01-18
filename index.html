@@ -140,638 +140,303 @@
     />    
   </head>
 
-  <body>
-    <main class="wrap">
-      <header class="topbar">
-        <h1 class="title">Card Frame</h1>
-        <div class="top-actions">
-          <button
-            id="clearAllBtn"
-            class="btn btn-ghost"
-            title="Clear all inputs"
-          >
-            <i class="fa-solid fa-broom"></i>
-          </button>
-          <button
-            id="topbarDownloadBtn"
-            class="btn btn-ghost"
-            title="Download PNG"
-          >
-            <i class="fa-solid fa-download"></i>
-          </button>
-        </div>
-      </header>
+<body>
+  <main class="wrap">
+    <header class="topbar">
+      <h1 class="title">Card Frame</h1>
+      <div class="top-actions">
+        <button id="clearAllBtn" class="btn btn-ghost" title="Clear all inputs"><i class="fa-solid fa-broom"></i></button>
+        <button id="topbarDownloadBtn" class="btn btn-ghost" title="Download PNG"><i class="fa-solid fa-download"></i></button>
 
-      <!-- grandma-friendly help panel -->
-      <section class="help-panel collapsed" id="helpPanel" aria-live="polite">
-        <div class="help-header">
-          <strong>Welcome Tutorial</strong>
-          <button
-            id="toggleHelpBtn"
-            class="btn btn-ghost small"
-            aria-expanded="false"
-            title="Show / hide instructions"
-          >
-            <i class="fa-solid fa-chevron-down"></i>
-          </button>
-        </div>
-        <div class="collapsible-content">
-          <div class="help-steps-content">
-            <p>
-              Begin by uploading your artwork (required, JPG/PNG supported).
-            </p>
-            <p>
-              Input the Character Name, Series Title, and Print Number. Use the
-              X button next to any text field to quickly clear it.
-            </p>
-            <p>
-              The card frame color is automatically detected from your image.
-              You may override this by selecting a swatch from the color palette
-              or choosing a Custom Color. The Custom Color swatch displays the
-              currently active frame color.
-            </p>
-            <p>
-              Once satisfied with the preview, click Download PNG to save your
-              finished card image.
-            </p>
-            <button
-              id="restartTutorialBtn"
-              class="btn small"
-              type="button"
-              style="margin-top: 10px"
-            >
-              <i class="fa-solid fa-rotate-left" style="margin-right: 6px"></i
-              >Start Tutorial
-            </button>
-          </div>
-          <p class="help-tip">
-            Tip: If the automatic color choice looks off, pick a different
-            palette swatch or use the Custom Color tool, then reupload to
-            restore a previous dominant color.
-          </p>
-        </div>
-      </section>
+      </div>
+    </header>
 
-      <section class="preview" id="previewWrap">
-        <canvas
-          id="frameCanvas"
-          width="290"
-          height="416"
-          aria-label="Card frame preview"
-          style="width:290px;height:416px;display:block;"
-        ></canvas>
-      </section>
+    <!-- grandma-friendly help panel -->
+    <section class="help-panel collapsed" id="helpPanel" aria-live="polite">
+      <div class="help-header">
+        <strong>Welcome Tutorial</strong>
+        <button id="toggleHelpBtn" class="btn btn-ghost small" aria-expanded="false" title="Show / hide instructions"><i class="fa-solid fa-chevron-down"></i></button>
+      </div>
+      <div class="collapsible-content">
+      <div class="help-steps-content">
+        <p>Begin by uploading your artwork (required, JPG/PNG supported).</p>
+        <p>Input the Character Name, Series Title, and Print Number. Use the X button next to any text field to quickly clear it.</p>
+        <p>The card frame color is automatically detected from your image. You may override this by selecting a swatch from the color palette or choosing a Custom Color. The Custom Color swatch displays the currently active frame color.</p>
+        <p>Once satisfied with the preview, click Download PNG to save your finished card image.</p>
+        <button id="restartTutorialBtn" class="btn small" type="button" style="margin-top: 10px;">
+             <i class="fa-solid fa-rotate-left" style="margin-right: 6px;"></i>Start Tutorial
+        </button>
+      </div>
+      <p class="help-tip">Tip: If the automatic color choice looks off, pick a different palette swatch or use the Custom Color tool, then reupload to restore a previous dominant color.</p>
+      </div>
+    </section>
 
-      <section class="controls">
-        <div class="card-inputs-container">
-          <div class="card-input-set" id="card1Controls" data-step="1">
-            <h2 style="margin:0;"><span class="step-badge">Step 1</span> Upload Image</h2>
-            <div class="input-group">
-              <div class="file-row">
-                <div class="dropzone-wrapper">
-                  <div
-                    class="dropzone"
-                    id="dropzone1"
-                    data-target-input="imageUpload1"
-                    tabindex="0"
-                    role="button"
-                    aria-label="Upload image or drop here"
-                    style="min-height:44px;padding:12px 14px;touch-action:manipulation;-webkit-tap-highlight-color:transparent;"
-                  >
-                    <div class="dz-left">
-                      <div class="dz-icon" aria-hidden="true">
-                        <i class="fa-solid fa-cloud-arrow-up"></i>
-                      </div>
-                      <div class="dz-text">
-                        <button
-                          class="btn small"
-                          type="button"
-                          id="dropChooseBtn"
-                          aria-label="Choose file"
-                          style="min-width:44px;min-height:44px;padding:6px 8px;box-sizing:border-box;"
-                        >
-                          Choose file
-                        </button>
-                        <div class="desc">
-                          Drag & drop or
-                          <span class="dz-click">click to upload</span>
-                        </div>
+    <section class="preview" id="previewWrap">
+      <canvas id="frameCanvas" width="290" height="416" aria-label="Card frame preview" style="width:290px;height:416px;display:block;"></canvas>
+    </section>
+
+    <section class="controls">
+      
+      <div class="card-inputs-container">
+        <div class="card-input-set" id="card1Controls" data-step="1">
+          <h2 style="margin:0;"><span class="step-badge">Step 1</span> Upload Image</h2>
+          <div class="input-group">
+            <label for="imageUpload1">Upload Image</label>
+            <div class="file-row">
+              <div class="dropzone-wrapper">
+                <div class="dropzone" id="dropzone1" data-target-input="imageUpload1" tabindex="0" role="button" aria-label="Upload image or drop here" style="min-height:44px;padding:12px 14px;">
+                  <div class="dz-left">
+                    <div class="dz-icon" aria-hidden="true" title="Upload"><i class="fa-solid fa-cloud-arrow-up"></i></div>
+                    <div class="dz-text">
+                      <div class="dz-title">Upload artwork</div>
+                      <div class="dz-sub">PNG or WEBP - recommended 725x1040px+</div>
+                      <div class="dz-actions">
+                        <button class="btn drop-choose" type="button" id="dropChooseBtn"><i class="fa-solid fa-folder-open" aria-hidden="true" style="margin-right:8px"></i>Choose file</button>
+                        <button class="btn btn-ghost clear-btn" data-clear-card="1" title="Clear card 1"><i class="fa-solid fa-trash"></i></button>
                       </div>
                     </div>
-                    <button
-                      class="btn btn-ghost clear-btn"
-                      data-clear-card="1"
-                      title="Clear card 1"
-                    >
-                      <i class="fa-solid fa-trash"></i>
-                    </button>
                   </div>
-                  <span
-                    class="filename"
-                    id="filename1"
-                    aria-live="polite"
-                  ></span>
+                  <div class="dz-right">
+                    <div class="dz-hint filename" id="filename1" aria-live="polite" style="margin-top:6px;"></div>
+                  </div>
                 </div>
-                <input
-                  type="file"
-                  id="imageUpload1"
-                  accept="image/*"
-                  aria-describedby="colorStatus1"
-                  style="display: none"
-                />
+                <span class="filename" id="filename1" aria-live="polite"></span>
               </div>
-              <div class="card-controls-row">
-                <p
-                  id="colorStatus1"
-                  class="muted small-info"
-                  aria-live="polite"
-                ></p>
-              </div>
+              <input type="file" id="imageUpload1" accept="image/*" aria-describedby="colorStatus1" style="display:none;">
+            
             </div>
-            <h3 style="margin:0;><span class="step-badge">Step 2</span> Select Color</h3>
-            <div
-              class="palette hidden"
-              id="palette1"
-            ></div>
-            <p id="paletteHint1" class="muted small-info">
-              No image uploaded. Default color will be used.
-            </p>
-            <div class="input-group top-pad">
-              <div class="color-input-wrapper">
-                <!-- Color swatch picker kept for visual selection -->
-                <input
-                  type="color"
-                  id="customColor1"
-                  value="#969696"
-                  aria-describedby="colorStatus1"
-                  title="Pick a color"
-                />
-                <!-- Hex code input (shadcn/ui-esque compact) -->
-                <input
-                  type="text"
-                  id="customColorHex1"
-                  class="hex-input"
-                  value="#969696"
-                  aria-label="Custom hex color"
-                  placeholder="#RRGGBB"
-                />
-                <small class="small-info"
-                  >Enter hex code (e.g. #A1B2C3) or use picker</small
-                >
-              </div>
-            </div>
-            <div class="input-group">
-              <input type="checkbox" id="showImage1" checked />
-              <label for="showImage1">Show Uploaded Image</label>
-              <small class="small-info">Uncheck to show frame only</small>
-            </div>
-
-            <div class="input-group">
-              <input type="checkbox" id="showGuides1" />
-              <label for="showGuides1">Toggle Guides</label>
-              <small class="small-info"
-                >Use center lines for alignment, prioritize face center
-                alignment, head should at least be near the head outline, head
-                should be above around the cyan line, chest should be above the
-                yellow line or print number bg part</small
-              >
-            </div>
-            <h4><span class="step-badge">Step 3</span> Card Text</h4>
-            <div class="input-group">
-              <label for="charName1">Character Name</label>
-              <div class="input-with-clear">
-                <input
-                  type="text"
-                  id="charName1"
-                  placeholder="e.g. Hu Tao"
-                  value=""
-                />
-                <button
-                  class="clear-input-btn"
-                  data-target="charName1"
-                  title="Clear Character Name"
-                >
-                  <i class="fa-solid fa-xmark"></i>
-                </button>
-              </div>
-              <div
-                class="length-warning muted small-info"
-                id="charWarn1"
-                aria-live="polite"
-              ></div>
-            </div>
-            <div class="input-group">
-              <label for="seriesTitle1">Series Title</label>
-              <div class="input-with-clear">
-                <input
-                  type="text"
-                  id="seriesTitle1"
-                  placeholder="e.g. Genshin Impact"
-                  value=""
-                />
-                <button
-                  class="clear-input-btn"
-                  data-target="seriesTitle1"
-                  title="Clear Series Title"
-                >
-                  <i class="fa-solid fa-xmark"></i>
-                </button>
-              </div>
-              <div
-                class="length-warning muted small-info"
-                id="seriesWarn1"
-                aria-live="polite"
-              ></div>
-            </div>
-            <div class="input-group">
-              <label for="printNumber1">Print Number (optional)</label>
-              <div class="input-with-clear">
-                <input
-                  type="text"
-                  id="printNumber1"
-                  placeholder="e.g. #1"
-                  value=""
-                />
-                <button
-                  class="clear-input-btn"
-                  data-target="printNumber1"
-                  title="Clear Print Number"
-                >
-                  <i class="fa-solid fa-xmark"></i>
-                </button>
-              </div>
-              <small class="small-info"
-                >Print number is <strong>not needed</strong> if you are
-                submitting a card</small
-              >
-            </div>
-
-            <!-- Cross-check results panel (collapsible, shows top results for character & series) -->
-            <div
-              id="crosscheckPanel"
-              class="crosscheck-panel open"
-              aria-hidden="false"
-            >
-              <div class="crosscheck-header">
-                <strong>Top matches</strong>
-                <div class="crosscheck-actions">
-                  <button
-                    id="crosscheckCloseBtn"
-                    class="btn btn-ghost small"
-                    title="Toggle results"
-                  >
-                    <i class="fa-solid fa-chevron-up"></i>
-                  </button>
-                </div>
-              </div>
-              <div class="crosscheck-body">
-                <div class="crosscheck-section" id="crosscheckCharacter">
-                  <div class="crosscheck-title">Character matches</div>
-                  <div class="crosscheck-list" id="crosscheckCharList"></div>
-                </div>
-                <div class="crosscheck-section" id="crosscheckSeries">
-                  <div class="crosscheck-title">Series matches</div>
-                  <div class="crosscheck-list" id="crosscheckSeriesList"></div>
-                </div>
-              </div>
-            </div>
-
-            <div class="form-actions">
-              <div class="quick-actions" aria-hidden="false">
-                <button
-                  id="fillExampleBtn"
-                  class="btn btn-ghost small"
-                  type="button"
-                  title="Auto-fill example values (grandma-friendly)"
-                  aria-label="Fill example values"
-                >
-                  <i class="fa-solid fa-seedling" style="margin-right: 8px"></i
-                  >Fill Example
-                </button>
-                <button
-                  id="cleanTextBtn"
-                  class="btn btn-ghost small"
-                  type="button"
-                  title="Clean up name/series (trim, collapse spaces)"
-                  aria-label="Clean text"
-                >
-                  <i class="fa-solid fa-broom" style="margin-right: 8px"></i
-                  >Clean Text
-                </button>
-              </div>
-
-              <button
-                id="sendDiscordBtn"
-                class="btn btn-discord"
-                type="button"
-                title="Send card details to Discord"
-              >
-                <i class="fa-brands fa-discord" style="margin-right: 8px"></i
-                >Send to Discord
-              </button>
-
-              <!-- Extra Clear All button (duplicate of topbar clear) -->
-              <button
-                id="clearAllBtn2"
-                class="btn btn-ghost small clear-all-top"
-                title="Clear all inputs"
-              >
-                <i class="fa-solid fa-broom" style="margin-right: 8px"></i>Clear
-                All
-              </button>
-
-              <button
-                id="downloadBtn"
-                class="btn"
-                type="button"
-                title="Download PNG"
-              >
-                <i class="fa-solid fa-download" style="margin-right: 8px"></i
-                >Download PNG
-              </button>
+            <div class="card-controls-row">
+              <p id="colorStatus1" class="muted small-info" aria-live="polite"></p>
             </div>
           </div>
-        </div>
-      </section>
-
-      <section
-        class="help-panel collapsed"
-        id="resourcesPanel"
-        aria-live="polite"
-      >
-        <div class="help-header">
-          <strong>Cardmaker Resources</strong>
-          <button
-            id="toggleResourcesBtn"
-            class="btn btn-ghost small"
-            aria-expanded="false"
-            title="Show / hide resources"
-          >
-            <i class="fa-solid fa-chevron-down"></i>
-          </button>
-        </div>
-        <div class="collapsible-content">
-          <div class="resource-categories">
-            <div class="resource-group">
-              <h5>Image Upscaling</h5>
-              <ul>
-                <li>
-                  <a href="https://www.waifu2x.net/" target="_blank"
-                    >waifu2x (Web)</a
-                  >
-                </li>
-                <li>
-                  <a href="https://unlimited.waifu2x.net/" target="_blank"
-                    >unlimited:waifu2x</a
-                  >
-                </li>
-                <li>
-                  <a href="https://upscayl.org/" target="_blank"
-                    >Upscayl (Desktop)</a
-                  >
-                </li>
-              </ul>
-            </div>
-
-            <div class="resource-group">
-              <h5>Image Sources</h5>
-              <ul>
-                <li>
-                  <a href="https://danbooru.donmai.us/" target="_blank"
-                    >Danbooru</a
-                  >
-                </li>
-                <li>
-                  <a href="https://safebooru.org/" target="_blank">Safebooru</a>
-                </li>
-                <li>
-                  <a href="https://gelbooru.com/" target="_blank">Gelbooru</a>
-                </li>
-                <li><a href="https://x.com/" target="_blank">X</a></li>
-                <li>
-                  <a
-                    href="https://www.zerochan.net/Official+Art"
-                    target="_blank"
-                    >Zerochan Official Art Tags (Search within Official Art)</a
-                  >
-                </li>
-                <li>
-                  <a href="https://mudae.net/" target="_blank">Mudae.net</a>
-                </li>
-                <li>
-                  <a
-                    href="https://everythingmoe.com/?section=artboard"
-                    target="_blank"
-                    >Everythingmoe</a
-                  >
-                </li>
-              </ul>
-            </div>
-
-            <div class="resource-group">
-              <h5>Reverse Image Search</h5>
-              <ul>
-                <li>
-                  <a href="https://images.google.com/" target="_blank"
-                    >Google Images</a
-                  >
-                </li>
-                <li>
-                  <a href="https://saucenao.com/" target="_blank">SauceNao</a>
-                </li>
-                <li>
-                  <a href="https://copyseeker.net/" target="_blank"
-                    >Copyseeker</a
-                  >
-                </li>
-                <li>
-                  <a href="https://image.baidu.com/" target="_blank">Baidu</a>
-                </li>
-                <li>
-                  <a href="https://yandex.com/images/" target="_blank"
-                    >Yandex</a
-                  >
-                </li>
-              </ul>
-            </div>
-
-            <div class="resource-group">
-              <h5>Series Checker</h5>
-              <ul>
-                <li>
-                  <a href="https://myanimelist.net/" target="_blank"
-                    >MyAnimeList</a
-                  >
-                </li>
-                <li>
-                  <a href="https://anilist.co/" target="_blank">Anilist</a>
-                </li>
-                <li><a href="https://kitsu.io/" target="_blank">Kitsu</a></li>
-                <li>
-                  <a
-                    href="https://everythingmoe.com/?section=database"
-                    target="_blank"
-                    >everythingmoe</a
-                  >
-                </li>
-              </ul>
-            </div>
-
-            <div class="resource-group">
-              <h5>Lossless Compression</h5>
-              <ul>
-                <li>
-                  <a
-                    href="https://github.com/Sethispr/blair-utils"
-                    target="_blank"
-                    >Blair Utils (needs Rust/Python, uses Oxipng, batch
-                    compressor)</a
-                  >
-                </li>
-                <li>
-                  <a href="https://free.tinypng.site/" target="_blank"
-                    >TinyPNG (Upload final card image, press blue "Edit" button,
-                    select Oxipng, set compression level 3, interlace off, no
-                    batch support)</a
-                  >
-                </li>
-                <li><s>Squoosh (select Oxipng, BUGGED)</s></li>
-              </ul>
+          <h4><span class="step-badge">Step 2</span> Select Color</h4>
+          <div class="palette hidden" id="palette1" aria-label="Color choices"></div>
+          <p id="paletteHint1" class="muted small-info">No image uploaded. Default color will be used.</p>
+          <div class="input-group top-pad">
+            <div class="color-input-wrapper">
+              <!-- Color swatch picker kept for visual selection -->
+              <input type="color" id="customColor1" value="#969696" aria-describedby="colorStatus1" title="Pick a color">
+              <!-- Hex code input (shadcn/ui-esque compact) -->
+              <input type="text" id="customColorHex1" class="hex-input" value="#969696" aria-label="Custom hex color" placeholder="#RRGGBB" />
+              <small class="small-info">Enter hex code (e.g. #A1B2C3) or use picker</small>
             </div>
           </div>
-        </div>
-      </section>
+          <div class="input-group">
+            <input type="checkbox" id="showImage1" checked>
+            <label for="showImage1">Show Uploaded Image</label>
+            <small class="small-info">Uncheck to show frame only</small>
+          </div>
 
-      <footer class="meta"></footer>
-    </main>
+          <div class="input-group">
+            <input type="checkbox" id="showGuides1">
+            <label for="showGuides1">Toggle Guides</label>
+            <small class="small-info">Use center lines for alignment, prioritize face center alignment, head should at least be near the head outline, head should be above around the cyan line, chest should be above the yellow line or print number bg part</small>
+          </div>
+          <h4><span class="step-badge">Step 3</span> Card Text</h4>
+          <div class="input-group">
+            <label for="charName1">Character Name</label>
+            <div class="input-with-clear">
+              <input type="text" id="charName1" placeholder="e.g. Hu Tao" value="">
+              <button class="clear-input-btn" data-target="charName1" title="Clear Character Name"><i class="fa-solid fa-xmark"></i></button>
+            </div>
+            <div class="length-warning muted small-info" id="charWarn1" aria-live="polite"></div>
+          </div>
+          <div class="input-group">
+            <label for="seriesTitle1">Series Title</label>
+            <div class="input-with-clear">
+              <input type="text" id="seriesTitle1" placeholder="e.g. Genshin Impact" value="">
+              <button class="clear-input-btn" data-target="seriesTitle1" title="Clear Series Title"><i class="fa-solid fa-xmark"></i></button>
+            </div>
+            <div class="length-warning muted small-info" id="seriesWarn1" aria-live="polite"></div>
+          </div>
+          <div class="input-group">
+            <label for="printNumber1">Print Number (optional)</label>
+            <div class="input-with-clear">
+              <input type="text" id="printNumber1" placeholder="e.g. #1" value="">
+              <button class="clear-input-btn" data-target="printNumber1" title="Clear Print Number"><i class="fa-solid fa-xmark"></i></button>
+            </div>
+            <small class="small-info">Print number is <strong>not needed</strong> if you are submitting a card</small>
+          </div>
 
-    <div id="toast-container"></div>
+          <!-- Cross-check results panel (collapsible, shows top results for character & series) -->
+          <div id="crosscheckPanel" class="crosscheck-panel open" aria-hidden="false">
+            <div class="crosscheck-header">
+              <strong>Top matches</strong>
+              <div class="crosscheck-actions">
+                <button id="crosscheckCloseBtn" class="btn btn-ghost small" title="Toggle results"><i class="fa-solid fa-chevron-up"></i></button>
+              </div>
+            </div>
+            <div class="crosscheck-body">
+              <div class="crosscheck-section" id="crosscheckCharacter">
+                <div class="crosscheck-title">Character matches</div>
+                <div class="crosscheck-list" id="crosscheckCharList"></div>
+              </div>
+              <div class="crosscheck-section" id="crosscheckSeries">
+                <div class="crosscheck-title">Series matches (Use English)</div>
+                <div class="crosscheck-list" id="crosscheckSeriesList"></div>
+              </div>
+            </div>
+          </div>
 
-    <div id="tutorial-overlay" style="display: none">
-      <div id="tutorial-backdrop"></div>
-      <div id="tutorial-popover" class="tutorial-popover">
-        <div class="popover-content">
-          <div id="tutorial-title" class="popover-title"></div>
-          <div id="tutorial-body" class="popover-body"></div>
-        </div>
-        <div class="popover-footer">
-          <span id="tutorial-step-indicator" class="step-indicator"></span>
-          <div class="popover-actions-group">
-            <button id="tutorial-skip-btn" class="btn btn-ghost small">
-              Skip
+          <div class="form-actions">
+            <div class="quick-actions" aria-hidden="false">
+              <button id="fillExampleBtn" class="btn btn-ghost small" type="button" title="Auto-fill example values (grandma-friendly)" aria-label="Fill example values">
+                <i class="fa-solid fa-seedling" style="margin-right:8px;"></i>Fill Example
+              </button>
+              <button id="cleanTextBtn" class="btn btn-ghost small" type="button" title="Clean up name/series (trim, collapse spaces)" aria-label="Clean text">
+                <i class="fa-solid fa-broom" style="margin-right:8px;"></i>Clean Text
+              </button>
+
+            </div>
+
+            <button id="sendDiscordBtn" class="btn btn-discord" type="button" title="Send card details to Discord">
+              <i class="fa-brands fa-discord" style="margin-right:8px;"></i>Send to Discord
             </button>
-            <button
-              id="tutorial-prev-btn"
-              class="btn btn-ghost small"
-              style="display: none"
-            >
-              Previous
+
+            <!-- Extra Clear All button (duplicate of topbar clear) -->
+            <button id="clearAllBtn2" class="btn btn-ghost small clear-all-top" title="Clear all inputs">
+              <i class="fa-solid fa-broom" style="margin-right:8px;"></i>Clear All
             </button>
-            <button id="tutorial-next-btn" class="btn small">Next</button>
+
+            <button id="downloadBtn" class="btn" type="button" title="Download PNG">
+              <i class="fa-solid fa-download" style="margin-right:8px;"></i>Download PNG
+            </button>
+          </div>
+        </div>
+
+      </div>
+    </section>
+
+    <section class="help-panel collapsed" id="resourcesPanel" aria-live="polite">
+      <div class="help-header">
+        <strong>Cardmaker Resources</strong>
+        <button id="toggleResourcesBtn" class="btn btn-ghost small" aria-expanded="false" title="Show / hide resources"><i class="fa-solid fa-chevron-down"></i></button>
+      </div>
+      <div class="collapsible-content">
+      <div class="resource-categories">
+        
+        <div class="resource-group">
+          <h5>Image Upscaling</h5>
+          <ul>
+            <li><a href="https://www.waifu2x.net/" target="_blank">waifu2x (Web)</a></li>
+            <li><a href="https://unlimited.waifu2x.net/" target="_blank">unlimited:waifu2x</a></li>
+            <li><a href="https://upscayl.org/" target="_blank">Upscayl (Desktop)</a></li>
+          </ul>
+        </div>
+
+        <div class="resource-group">
+          <h5>Image Sources</h5>
+          <ul>
+            <li><a href="https://danbooru.donmai.us/" target="_blank">Danbooru</a></li>
+            <li><a href="https://safebooru.org/" target="_blank">Safebooru</a></li>
+            <li><a href="https://gelbooru.com/" target="_blank">Gelbooru</a></li>
+            <li><a href="https://x.com/" target="_blank">X</a></li>
+            <li><a href="https://www.zerochan.net/Official+Art" target="_blank">Zerochan Official Art Tags (Search within Official Art)</a></li>
+            <li><a href="https://mudae.net/" target="_blank">Mudae.net</a></li>
+            <li><a href="https://everythingmoe.com/?section=artboard" target="_blank">Everythingmoe</a></li>
+          </ul>
+        </div>
+        
+        <div class="resource-group">
+          <h5>Reverse Image Search</h5>
+          <ul>
+            <li><a href="https://images.google.com/" target="_blank">Google Images</a></li>
+            <li><a href="https://saucenao.com/" target="_blank">SauceNao</a></li>
+            <li><a href="https://copyseeker.net/" target="_blank">Copyseeker</a></li>
+            <li><a href="https://image.baidu.com/" target="_blank">Baidu</a></li>
+            <li><a href="https://yandex.com/images/" target="_blank">Yandex</a></li>
+          </ul>
+        </div>
+
+        <div class="resource-group">
+          <h5>Series Checker</h5>
+          <ul>
+            <li><a href="https://myanimelist.net/" target="_blank">MyAnimeList</a></li>
+            <li><a href="https://anilist.co/" target="_blank">Anilist</a></li>
+            <li><a href="https://kitsu.io/" target="_blank">Kitsu</a></li>
+            <li><a href="https://everythingmoe.com/?section=database" target="_blank">everythingmoe</a></li>
+          </ul>
+        </div>
+        
+        <div class="resource-group">
+          <h5>Lossless Compression</h5>
+          <ul>
+            <li><a href="https://github.com/Sethispr/blair-utils" target="_blank">Blair Utils (needs Rust/Python, uses Oxipng, batch compressor)</a></li>
+            <li><a href="https://free.tinypng.site/" target="_blank">TinyPNG (Upload final card image, press blue "Edit" button, select Oxipng, set compression level 3, interlace off, no batch support)</a></li>
+            <li><s>Squoosh (select Oxipng, BUGGED)</s></li>
+          </ul>
+        </div>
+      </div>
+      </div>
+    </section>
+
+    <footer class="meta">
+    </footer>
+  </main>
+
+  <div id="toast-container"></div>
+
+  <div id="tutorial-overlay" style="display: none;">
+    <div id="tutorial-backdrop"></div>
+    <div id="tutorial-popover" class="tutorial-popover">
+      <div class="popover-content">
+        <div id="tutorial-title" class="popover-title"></div>
+        <div id="tutorial-body" class="popover-body"></div>
+      </div>
+      <div class="popover-footer">
+        <span id="tutorial-step-indicator" class="step-indicator"></span>
+        <div class="popover-actions-group">
+          <button id="tutorial-skip-btn" class="btn btn-ghost small">Skip</button>
+          <button id="tutorial-prev-btn" class="btn btn-ghost small" style="display: none;">Previous</button>
+          <button id="tutorial-next-btn" class="btn small">Next</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Confirmation modal for Discord send -->
+  <div id="confirm-modal" class="confirm-modal" aria-hidden="true">
+    <div class="confirm-backdrop" id="confirm-backdrop"></div>
+    <div class="confirm-sheet" role="dialog" aria-modal="true" aria-labelledby="confirm-title" aria-describedby="confirm-body">
+      <div class="confirm-header">
+        <h3 id="confirm-title">Confirm submission</h3>
+        <button id="confirm-close" class="btn btn-ghost small" title="Close"><i class="fa-solid fa-xmark"></i></button>
+      </div>
+      <div class="confirm-body" id="confirm-body">
+        <div class="confirm-row"><strong>Character</strong><div id="confirm-name" class="confirm-val"></div></div>
+        <div class="confirm-row"><strong>Series</strong><div id="confirm-series" class="confirm-val"></div></div>
+
+        <div id="confirm-wiki" class="confirm-wiki"></div>
+      </div>
+      <div class="confirm-actions">
+        <!-- quick copy button so users can copy the embed color hex easily -->
+        <button id="copyEmbedColorBtn" class="btn btn-ghost small" title="Copy embed color hex"><i class="fa-solid fa-palette" style="margin-right:8px;"></i>Copy color</button>
+        <button id="confirm-cancel" class="btn btn-ghost small">Cancel</button>
+        <button id="confirm-send" class="btn btn-discord small"><i class="fa-brands fa-discord" style="margin-right:8px;"></i>Send to Discord</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Centered loading overlay shown during compression tasks -->
+  <div id="loading-overlay" aria-hidden="true" class="loading-overlay" style="display:none;">
+    <div class="loading-backdrop"></div>
+    <div class="loading-card" role="status" aria-live="polite" aria-atomic="true">
+      <div class="spinner" aria-hidden="true"></div>
+      <div style="display:flex;flex-direction:column;gap:8px;width:100%;">
+        <div id="loading-message" class="loading-message">Working…</div>
+
+        <!-- Realistic-looking progress UI: textual ETA + animated progress bar -->
+        <div class="loading-progress" aria-hidden="false" style="width:100%;">
+          <div class="loading-progress-row">
+            <div id="loading-subtext" class="loading-subtext">This may take a minute…</div>
+            <div id="loading-percent" class="loading-percent" aria-hidden="true">0%</div>
+          </div>
+          <div class="progress-track" role="progressbar" aria-valuemin="0" aria-valuemax="100" aria-valuenow="0">
+            <div id="progress-fill" class="progress-fill" style="width:0%;"></div>
           </div>
         </div>
       </div>
     </div>
-
-    <!-- Confirmation modal for Discord send -->
-    <div id="confirm-modal" class="confirm-modal" aria-hidden="true">
-      <div class="confirm-backdrop" id="confirm-backdrop"></div>
-      <div
-        class="confirm-sheet"
-        role="dialog"
-        aria-modal="true"
-        aria-labelledby="confirm-title"
-        aria-describedby="confirm-body"
-      >
-        <div class="confirm-header">
-          <h3 id="confirm-title">Confirm submission</h3>
-          <button id="confirm-close" class="btn btn-ghost small" title="Close">
-            <i class="fa-solid fa-xmark"></i>
-          </button>
-        </div>
-        <div class="confirm-body" id="confirm-body">
-          <div class="confirm-row">
-            <strong>Character</strong>
-            <div id="confirm-name" class="confirm-val"></div>
-          </div>
-          <div class="confirm-row">
-            <strong>Series</strong>
-            <div id="confirm-series" class="confirm-val"></div>
-          </div>
-
-          <div id="confirm-wiki" class="confirm-wiki"></div>
-        </div>
-        <div class="confirm-actions">
-          <!-- quick copy button so users can copy the embed color hex easily -->
-          <button
-            id="copyEmbedColorBtn"
-            class="btn btn-ghost small"
-            title="Copy embed color hex"
-          >
-            <i class="fa-solid fa-palette" style="margin-right: 8px"></i>Copy
-            color
-          </button>
-          <button id="confirm-cancel" class="btn btn-ghost small">
-            Cancel
-          </button>
-          <button id="confirm-send" class="btn btn-discord small">
-            <i class="fa-brands fa-discord" style="margin-right: 8px"></i>Send
-            to Discord
-          </button>
-        </div>
-      </div>
-    </div>
-
-    <!-- Centered loading overlay shown during compression tasks -->
-    <div
-      id="loading-overlay"
-      aria-hidden="true"
-      class="loading-overlay"
-      style="display: none"
-    >
-      <div class="loading-backdrop"></div>
-      <div
-        class="loading-card"
-        role="status"
-        aria-live="polite"
-        aria-atomic="true"
-      >
-        <div class="spinner" aria-hidden="true"></div>
-        <div
-          style="display: flex; flex-direction: column; gap: 8px; width: 100%"
-        >
-          <div id="loading-message" class="loading-message">Working…</div>
-
-          <!-- Realistic-looking progress UI: textual ETA + animated progress bar -->
-          <div class="loading-progress" aria-hidden="false" style="width: 100%">
-            <div class="loading-progress-row">
-              <div id="loading-subtext" class="loading-subtext">
-                This may take a minute…
-              </div>
-              <div
-                id="loading-percent"
-                class="loading-percent"
-                aria-hidden="true"
-              >
-                0%
-              </div>
-            </div>
-            <div
-              class="progress-track"
-              role="progressbar"
-              aria-valuemin="0"
-              aria-valuemax="100"
-              aria-valuenow="0"
-            >
-              <div
-                id="progress-fill"
-                class="progress-fill"
-                style="width: 0%"
-              ></div>
-            </div>
-          </div>
-        </div>
-      </div>
-    </div>
-  </body>
+  </div>
+</body>
 </html>
