@@ -1,0 +1,23 @@
+{
+  "name": "Blair studio",
+  "short_name": "Blair",
+  "theme_color": "#fff9a5",
+  "background_color": "#fff9a5",
+  "display": "standalone",
+  "orientation": "any",
+  "scope": "/",
+  "start_url": "/",
+  "description": "Upload your upscaled cropped image, add character info, and send to discord.",
+  "icons": [
+    {
+      "src": "icon-192.png",
+      "sizes": "192x192",
+      "type": "image/png"
+    },
+    {
+      "src": "icon-512.png",
+      "sizes": "512x512",
+      "type": "image/png"
+    }
+  ]
+}
