@@ -144,15 +144,12 @@
   </head>
 
   <body>
-    <!-- Main app wrapper here. -->
+    <!-- Main app wrapper -->
     <main class="wrap">
-      <!-- Top navi bar (title as well here).
-           - Clear all inputs btn
-           - Download .png btn (dupe of the main download btn) -->
+      <!-- Top navi bar -->
       <header class="topbar">
         <h1 class="title">Card Frame</h1>
         <div class="top-actions">
-          <!-- Clear all inputs btn, resets all forms and images -->
           <button
             id="clearAllBtn"
             class="btn btn-ghost"
@@ -160,7 +157,6 @@
           >
             <i class="fa-solid fa-broom"></i>
           </button>
-          <!-- Nav bar download btn -->
           <button
             id="topbarDownloadBtn"
             class="btn btn-ghost"
@@ -171,11 +167,10 @@
         </div>
       </header>
 
-      <!-- Help panel with tutorial btn as well here. -->
+      <!-- Help panel -->
       <section class="help-panel collapsed" id="helpPanel" aria-live="polite">
         <div class="help-header">
           <strong>Welcome Tutorial</strong>
-          <!-- Toggle btn to expand or collapse help panel ui. -->
           <button
             id="toggleHelpBtn"
             class="btn btn-ghost small"
@@ -187,28 +182,24 @@
         </div>
         <div class="collapsible-content">
           <div class="help-steps-content">
-            <!-- Step 1: Image upload reqs. -->
             <p>
               Begin by uploading your artwork (required, JPG/PNG supported).
             </p>
-            <!-- Step 2: Text input form stuff. -->
             <p>
               Input the Character Name, Series Title, and Print Number. Use the
               X button next to any text field to quickly clear it.
             </p>
-            <!-- Step 3: Color selection explanation (really outdated) -->
+            <!-- Color selection explanation (really outdated) -->
             <p>
               The card frame color is automatically detected from your image.
               You may override this by selecting a swatch from the color palette
               or choosing a Custom Color. The Custom Color swatch displays the
               currently active frame color.
             </p>
-            <!-- Step 4: Download final card img. -->
             <p>
               Once satisfied with the preview, click Download PNG to save your
               finished card image.
             </p>
-            <!-- Restart tutorial btn. -->
             <button
               id="restartTutorialBtn"
               class="btn small"
@@ -227,8 +218,9 @@
         </div>
       </section>
 
-      <!-- Live preview section showing the card being generated 290x416px size
-           This later gets upscaled using the export 2.5x which changes it to 725x1040 px -->
+      <!-- Live preview showing the framed card 290x416px card size
+           This later gets upscaled when sending or downloading
+           using the export 2.5x which changes it to 725x1040 px (THIS IS THE CARD DIMENSIONS BLAIR USES!!) -->
       <section class="preview" id="previewWrap">
         <canvas
           id="frameCanvas"
@@ -239,18 +231,16 @@
         ></canvas>
       </section>
 
-      <!-- Main controls section here. -->
+      <!-- Main section -->
       <section class="controls">
         <div class="card-inputs-container">
           <div class="card-input-set" id="card1Controls" data-step="1">
-            <!-- Step 1: Img upload part here. -->
             <h2 style="margin: 0">
               <span class="step-badge">Step 1</span> Upload Image
             </h2>
             <div class="input-group">
               <div class="file-row">
                 <div class="dropzone-wrapper">
-                  <!-- Drag n drop zone for file upload. -->
                   <div
                     class="dropzone"
                     id="dropzone1"
@@ -286,7 +276,6 @@
                             ></i
                             >Choose file
                           </button>
-                          <!-- Clear uploaded img btn. -->
                           <button
                             class="btn btn-ghost clear-btn"
                             data-clear-card="1"
@@ -298,7 +287,6 @@
                       </div>
                     </div>
                     <div class="dz-right">
-                      <!-- Filename display here. -->
                       <div
                         class="dz-hint filename"
                         id="filename1"
@@ -307,7 +295,7 @@
                       ></div>
                     </div>
                   </div>
-                  <!-- Dupe filename display but legacy. -->
+                  <!-- Dupe filename display but legacy -->
                   <span
                     class="filename"
                     id="filename1"
@@ -323,7 +311,7 @@
                 />
               </div>
               <div class="card-controls-row">
-                <!-- Show the live color used in frame. -->
+                <!-- Show the color used in the frame -->
                 <p
                   id="colorStatus1"
                   class="muted small-info"
@@ -331,11 +319,9 @@
                 ></p>
               </div>
             </div>
-            <!-- Step 2: Color Selection
-                 Auto color palette generated from image
+            <!-- Auto color palette generated from image
                  Can select from those colors or use custom color picker -->
             <h2><span class="step-badge">Step 2</span> Select Color</h2>
-            <!-- Color palette container here. -->
             <div class="palette hidden" id="palette1"></div>
             <p id="paletteHint1" class="muted small-info">
               No image uploaded. Default color will be used.
@@ -344,8 +330,8 @@
               <!-- Custom color picker section, VERY barebones rn and probs most users dont know abt this
                    But now also supports custom hes code so it'd be more visible to cardmakers -->
               <div class="color-input-wrapper">
-                <!-- Color picker input
-                     Default val: #969696 (neutral gray) -->
+                <!-- Color picker
+                     Default val: #969696 (lightish gray) -->
                 <input
                   type="color"
                   id="customColor1"
@@ -353,7 +339,7 @@
                   aria-describedby="colorStatus1"
                   title="Pick a color"
                 />
-                <!-- Hex code input here. -->
+                <!-- Custom hex code input -->
                 <input
                   type="text"
                   id="customColorHex1"
@@ -367,14 +353,14 @@
                 >
               </div>
             </div>
-            <!-- Show/hide uploaded image. -->
+            <!-- Show uploaded image -->
             <div class="input-group">
               <input type="checkbox" id="showImage1" checked />
               <label for="showImage1">Show Uploaded Image</label>
               <small class="small-info">Uncheck to show frame only</small>
             </div>
 
-            <!-- Toggle alignment guide lines. -->
+            <!-- Show alignment lines -->
             <div class="input-group">
               <input type="checkbox" id="showGuides1" />
               <label for="showGuides1">Toggle Guides</label>
@@ -385,9 +371,8 @@
                 yellow line or print number bg part</small
               >
             </div>
-            <!-- Step 3: Card test inputs
-                 Character name, series title, and optional print number 
-                 (Now auto removes print no. if you send to Discord rather than blocking req) -->
+            <!-- Character name, series title, and optional print number 
+                 Now we auto removes print no. if you send to Discord rather than blocking the req -->
             <h3><span class="step-badge">Step 3</span> Card Text</h3>
             <!-- Character name input form. -->
             <div class="input-group">
@@ -413,7 +398,6 @@
                 aria-live="polite"
               ></div>
             </div>
-            <!-- Series title input form. -->
             <div class="input-group">
               <label for="seriesTitle1">Series Title</label>
               <div class="input-with-clear">
@@ -437,7 +421,7 @@
                 aria-live="polite"
               ></div>
             </div>
-            <!-- Print number input form (optional for preview) Ex: #67 -->
+            <!-- Print number (optional for preview) ex: #67 -->
             <div class="input-group">
               <label for="printNumber1">Print Number (optional)</label>
               <div class="input-with-clear">
@@ -461,7 +445,7 @@
               >
             </div>
 
-            <!-- Auto suggestions ui here. -->
+            <!-- Auto suggestions panel -->
             <div
               id="crosscheckPanel"
               class="crosscheck-panel open"
@@ -518,7 +502,7 @@
                 </button>
               </div>
 
-              <!-- Sends card data to Discord webhook to our #content channel. -->
+              <!-- Sends card data to Discord webhook to our #content channel -->
               <button
                 id="sendDiscordBtn"
                 class="btn btn-discord"
@@ -529,7 +513,7 @@
                 >Send to Discord
               </button>
 
-              <!-- Clear all button (dupe). -->
+              <!-- Clear all button (dupe) -->
               <button
                 id="clearAllBtn2"
                 class="btn btn-ghost small clear-all-top"
@@ -539,7 +523,7 @@
                 All
               </button>
 
-              <!-- Download .png button (dupe too). -->
+              <!-- Download .png button (dupe too) -->
               <button
                 id="downloadBtn"
                 class="btn"
@@ -554,7 +538,7 @@
         </div>
       </section>
 
-      <!-- Cardmaker resources panel part. -->
+      <!-- Cardmaker resources -->
       <section
         class="help-panel collapsed"
         id="resourcesPanel"
@@ -699,14 +683,14 @@
         </div>
       </section>
 
-      <!-- Footer (just empty for now). -->
+      <!-- Footer (just empty for now) -->
       <footer class="meta"></footer>
     </main>
 
-    <!-- Toast notifications. -->
+    <!-- Toast notifs -->
     <div id="toast-container"></div>
 
-    <!-- Tutorial. -->
+    <!-- Tutorial walkthrough -->
     <div id="tutorial-overlay" style="display: none">
       <div id="tutorial-backdrop"></div>
       <div id="tutorial-popover" class="tutorial-popover">
@@ -732,8 +716,6 @@
         </div>
       </div>
     </div>
-
-    <!-- Confirmation modal for Discord submission. -->
     <div id="confirm-modal" class="confirm-modal" aria-hidden="true">>
       <div class="confirm-backdrop" id="confirm-backdrop"></div>
       <div
@@ -759,7 +741,7 @@
             <div id="confirm-series" class="confirm-val"></div>
           </div>
 
-          <!-- Wiki links here. -->
+          <!-- Wiki links are given here -->
           <div id="confirm-wiki" class="confirm-wiki"></div>
         </div>
         <div class="confirm-actions">
@@ -782,7 +764,7 @@
       </div>
     </div>
 
-    <!-- Loading screen for the lossless compression part takes around 1 minute ish -->
+    <!-- Loading screen for the lossless compression step takes around 1 minute ish -->
     <div
       id="loading-overlay"
       aria-hidden="true"
@@ -802,7 +784,7 @@
         >
           <div id="loading-message" class="loading-message">Working…</div>
 
-          <!-- Fake progress bar, the jsquash/oxipng doesn't have support for it -->
+          <!-- Fake progress bar, the jsquash/oxipng doesn't have support for it rn -->
           <div class="loading-progress" aria-hidden="false" style="width: 100%">
             <div class="loading-progress-row">
               <div id="loading-subtext" class="loading-subtext">
