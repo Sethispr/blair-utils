@@ -4,7 +4,7 @@
     class="blair-container__image"
   /></kbd>
 
-  this project is now hosted on cloudflare pages
+  This project is now hosted on cloudflare pages
   
   https://sethispr.github.io/blair-utils/ legacy testing
   
