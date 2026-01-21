@@ -1,3 +1,5 @@
+Blair's build currently uses PNG which this site now auto compresses your final cards submissions using rust **oxipng** wasm. Soon the idea of using .webp is plausible considering its more optimized in compressing and can achieve lossless compressions as well (more detail on blairpng repo).
+
 <div class="blair-container"><kbd><img
     src="https://raw.githubusercontent.com/Sethispr/blair-utils/main/src/IMG_7369.webp"
     alt="blair cards preview banner"
